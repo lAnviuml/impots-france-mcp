@@ -1,0 +1,3631 @@
+{
+  "source": {
+    "project": "Impôts France MCP",
+    "repository": "https://github.com/murillo-consulting/impots-france-mcp",
+    "version": "0.1.0",
+    "generated_at": "2026-08-01"
+  },
+  "tools": [
+    {
+      "name": "calculer_impot_revenu",
+      "description": "Calcule l'impôt sur le revenu 2025 (revenus 2024). Prend en compte le quotient familial, la décote et les tranches officielles. Fournit l'impôt brut, net, le taux moyen et le taux marginal.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "revenu_net_imposable": {
+            "type": "number",
+            "description": "Revenu net imposable annuel en euros (après abattement 10% si salarié)"
+          },
+          "situation_famille": {
+            "type": "string",
+            "enum": [
+              "celibataire",
+              "marie",
+              "pacse",
+              "divorce",
+              "veuf"
+            ],
+            "description": "Situation de famille"
+          },
+          "nb_enfants": {
+            "type": "integer",
+            "description": "Nombre d'enfants à charge exclusive (défaut: 0)",
+            "default": 0
+          },
+          "nb_enfants_garde_alternee": {
+            "type": "integer",
+            "description": "Nombre d'enfants en garde alternée (compte pour 0.25 part au lieu de 0.5). Ne pas les inclure dans nb_enfants.",
+            "default": 0
+          },
+          "enfants_handicap": {
+            "type": "integer",
+            "description": "Nombre d'enfants à charge en situation de handicap (défaut: 0)",
+            "default": 0
+          },
+          "nb_parts_custom": {
+            "type": "number",
+            "description": "Nombre de parts personnalisé (optionnel, remplace le calcul automatique)"
+          },
+          "annee": {
+            "type": "integer",
+            "enum": [
+              2025,
+              2026
+            ],
+            "description": "Année fiscale : 2025 (revenus 2024) ou 2026 (revenus 2025, défaut)",
+            "default": 2026
+          },
+          "age_contribuable": {
+            "type": "integer",
+            "description": "Âge du contribuable principal (pour abattement +65 ans)"
+          }
+        },
+        "required": [
+          "revenu_net_imposable",
+          "situation_famille"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "simuler_tranches_imposition",
+      "description": "Affiche le détail des tranches d'imposition 2025 et montre dans quelle tranche se situe un revenu donné.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "revenu_annuel_brut": {
+            "type": "number",
+            "description": "Revenu annuel brut ou net imposable en euros"
+          },
+          "type_revenu": {
+            "type": "string",
+            "enum": [
+              "salaire_brut",
+              "salaire_net",
+              "net_imposable"
+            ],
+            "description": "Type de revenu fourni (défaut: net_imposable)",
+            "default": "net_imposable"
+          }
+        },
+        "required": [
+          "revenu_annuel_brut"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "optimiser_impots",
+      "description": "Analyse la situation fiscale et propose des stratégies d'optimisation légales personnalisées : PER, dons, emploi domicile, PEA, frais réels, etc. C'est l'outil principal pour économiser des impôts.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "revenu_net_imposable": {
+            "type": "number",
+            "description": "Revenu net imposable annuel"
+          },
+          "situation_famille": {
+            "type": "string",
+            "enum": [
+              "celibataire",
+              "marie",
+              "pacse",
+              "divorce",
+              "veuf"
+            ]
+          },
+          "nb_enfants": {
+            "type": "integer",
+            "default": 0
+          },
+          "a_employe_domicile": {
+            "type": "boolean",
+            "description": "A-t-on un employé à domicile (ménage, garde enfant, jardinage) ?",
+            "default": false
+          },
+          "a_enfant_moins_6ans": {
+            "type": "boolean",
+            "description": "A-t-on un enfant de moins de 6 ans en crèche ou chez assistante maternelle ?",
+            "default": false
+          },
+          "versements_per": {
+            "type": "number",
+            "description": "Versements PER déjà effectués cette année (optionnel)",
+            "default": 0
+          },
+          "a_investissement_locatif": {
+            "type": "boolean",
+            "description": "Possède-t-on un investissement locatif ?",
+            "default": false
+          },
+          "fait_des_dons": {
+            "type": "boolean",
+            "description": "Fait-on des dons à des associations ?",
+            "default": false
+          },
+          "type_contribuable": {
+            "type": "string",
+            "enum": [
+              "salarie",
+              "independant",
+              "retraite",
+              "mixte"
+            ],
+            "description": "Statut professionnel",
+            "default": "salarie"
+          }
+        },
+        "required": [
+          "revenu_net_imposable",
+          "situation_famille"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "calculer_economie_per",
+      "description": "Calcule l'économie d'impôt réalisée en versant sur un Plan d'Épargne Retraite (PER). Le PER est souvent la meilleure stratégie pour réduire son impôt légalement.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "revenu_net_imposable": {
+            "type": "number",
+            "description": "Revenu net imposable avant versement PER"
+          },
+          "situation_famille": {
+            "type": "string",
+            "enum": [
+              "celibataire",
+              "marie",
+              "pacse",
+              "divorce",
+              "veuf"
+            ]
+          },
+          "nb_enfants": {
+            "type": "integer",
+            "default": 0
+          },
+          "montant_versement": {
+            "type": "number",
+            "description": "Montant envisagé pour le versement PER"
+          },
+          "revenu_pro_net": {
+            "type": "number",
+            "description": "Revenus professionnels nets de l'année (pour calculer le plafond)"
+          }
+        },
+        "required": [
+          "revenu_net_imposable",
+          "situation_famille",
+          "montant_versement"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "lister_credits_impot",
+      "description": "Liste tous les crédits d'impôt disponibles pour les particuliers français en 2025 avec les conditions d'éligibilité et les montants. Un crédit d'impôt est remboursé même si vous ne payez pas d'impôt.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "filtre": {
+            "type": "string",
+            "description": "Filtre optionnel (ex: 'garde', 'domicile', 'energie')"
+          }
+        },
+        "required": []
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "lister_reductions_impot",
+      "description": "Liste toutes les réductions d'impôt disponibles pour les particuliers en 2025 (dons, investissement PME, Pinel, etc.). Une réduction d'impôt diminue l'impôt mais n'est pas remboursable si elle dépasse l'impôt dû.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "filtre": {
+            "type": "string",
+            "description": "Filtre optionnel (ex: 'don', 'immobilier', 'investissement')"
+          }
+        },
+        "required": []
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "lister_deductions_revenu",
+      "description": "Liste toutes les déductions possibles du revenu imposable : frais réels, PER, pensions alimentaires, déficit foncier, CSG déductible... Les déductions réduisent directement la base imposable.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "lister_epargne_defiscalisante",
+      "description": "Liste les dispositifs d'épargne avec avantages fiscaux : PER, PEA, assurance-vie, Livret A, LEP, LDDS. Explique les plafonds, les avantages et les conditions.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "calculer_quotient_familial",
+      "description": "Calcule le nombre de parts fiscales (quotient familial) selon la situation de famille et le nombre d'enfants à charge.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "situation_famille": {
+            "type": "string",
+            "enum": [
+              "celibataire",
+              "marie",
+              "pacse",
+              "divorce",
+              "veuf"
+            ]
+          },
+          "nb_enfants": {
+            "type": "integer",
+            "description": "Nombre d'enfants à charge",
+            "default": 0
+          },
+          "enfants_handicap": {
+            "type": "integer",
+            "description": "Dont enfants en situation de handicap",
+            "default": 0
+          },
+          "invalide_contribuable": {
+            "type": "boolean",
+            "description": "Le contribuable est-il invalide (carte d'invalidité) ?",
+            "default": false
+          },
+          "ancien_combattant": {
+            "type": "boolean",
+            "description": "Est-ce un ancien combattant ou une personne de + de 74 ans avec carte combattant ?",
+            "default": false
+          }
+        },
+        "required": [
+          "situation_famille"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "guide_frais_reels",
+      "description": "Guide complet sur la déduction des frais réels professionnels : quand est-ce avantageux, quels frais déduire, comment calculer les frais kilométriques. Alternative à l'abattement forfaitaire de 10%.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "salaire_net_annuel": {
+            "type": "number",
+            "description": "Salaire net annuel (pour comparer avec l'abattement 10%)"
+          },
+          "distance_domicile_travail_km": {
+            "type": "number",
+            "description": "Distance domicile-travail en km (aller simple)"
+          },
+          "nb_jours_travail": {
+            "type": "integer",
+            "description": "Nombre de jours travaillés par an (défaut: 220)",
+            "default": 220
+          },
+          "type_vehicule": {
+            "type": "string",
+            "enum": [
+              "voiture",
+              "moto",
+              "velo_electrique"
+            ],
+            "description": "Type de véhicule utilisé",
+            "default": "voiture"
+          },
+          "puissance_fiscale": {
+            "type": "integer",
+            "description": "Puissance fiscale du véhicule en CV (pour voiture/moto)",
+            "default": 5
+          }
+        },
+        "required": [
+          "salaire_net_annuel"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "calendrier_fiscal",
+      "description": "Affiche le calendrier fiscal 2025 avec toutes les dates importantes : déclaration de revenus, paiements, versements PER, etc.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "filtre_urgent": {
+            "type": "boolean",
+            "description": "Afficher uniquement les dates importantes (défaut: false)",
+            "default": false
+          }
+        },
+        "required": []
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "calculer_plus_values",
+      "description": "Calcule la fiscalité sur les plus-values mobilières (actions, PEA, etc.) et immobilières. Explique les abattements pour durée de détention.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "type_actif": {
+            "type": "string",
+            "enum": [
+              "actions_hors_pea",
+              "immobilier_residence_principale",
+              "immobilier_locatif",
+              "cryptomonnaie"
+            ],
+            "description": "Type d'actif cédé"
+          },
+          "montant_plus_value": {
+            "type": "number",
+            "description": "Montant de la plus-value brute en euros"
+          },
+          "duree_detention_ans": {
+            "type": "number",
+            "description": "Durée de détention en années",
+            "default": 0
+          },
+          "revenu_net_imposable": {
+            "type": "number",
+            "description": "Revenu net imposable (hors plus-value) pour calcul du taux"
+          }
+        },
+        "required": [
+          "type_actif",
+          "montant_plus_value"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "info_fiscalite_immobilier",
+      "description": "Informations sur la fiscalité immobilière pour les particuliers : revenus fonciers, LMNP, LMP, déficit foncier, taxe foncière, IFI.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "type_location": {
+            "type": "string",
+            "enum": [
+              "nue",
+              "meublee_lmnp",
+              "meublee_lmp",
+              "saisonniere"
+            ],
+            "description": "Type de location"
+          },
+          "loyers_annuels": {
+            "type": "number",
+            "description": "Montant annuel des loyers perçus"
+          },
+          "charges_annuelles": {
+            "type": "number",
+            "description": "Montant annuel des charges (travaux, intérêts, gestion...)",
+            "default": 0
+          }
+        },
+        "required": [
+          "type_location"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "analyser_declaration_revenus",
+      "description": "Analyse une déclaration d'impôts (données saisies manuellement ou copiées) et identifie les cases non optimisées, les oublis fréquents et les économies possibles. Fournir les montants des cases clés de votre déclaration 2042.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "case_1AJ": {
+            "type": "number",
+            "description": "Case 1AJ : Salaires du déclarant 1 (net imposable)"
+          },
+          "case_1BJ": {
+            "type": "number",
+            "description": "Case 1BJ : Salaires du déclarant 2 (net imposable)"
+          },
+          "case_1AK": {
+            "type": "number",
+            "description": "Case 1AK : Frais réels déclarant 1 (si option frais réels)"
+          },
+          "case_1BK": {
+            "type": "number",
+            "description": "Case 1BK : Frais réels déclarant 2"
+          },
+          "case_2DC": {
+            "type": "number",
+            "description": "Case 2DC : Revenus de capitaux mobiliers (dividendes)"
+          },
+          "case_2TR": {
+            "type": "number",
+            "description": "Case 2TR : Intérêts et produits de placement"
+          },
+          "case_3VG": {
+            "type": "number",
+            "description": "Case 3VG : Plus-values mobilières imposables"
+          },
+          "case_4BA": {
+            "type": "number",
+            "description": "Case 4BA : Revenus fonciers nets (régime réel)"
+          },
+          "case_4BE": {
+            "type": "number",
+            "description": "Case 4BE : Revenus fonciers micro-foncier (brut)"
+          },
+          "case_6NS": {
+            "type": "number",
+            "description": "Case 6NS : Versements PER déductibles déclarant 1"
+          },
+          "case_6NT": {
+            "type": "number",
+            "description": "Case 6NT : Versements PER déductibles déclarant 2"
+          },
+          "case_7DB": {
+            "type": "number",
+            "description": "Case 7DB : Garde enfants hors domicile (dépenses)"
+          },
+          "case_7DF": {
+            "type": "number",
+            "description": "Case 7DF : Emploi à domicile (dépenses)"
+          },
+          "case_7UD": {
+            "type": "number",
+            "description": "Case 7UD : Dons organismes aide personnes en difficulté"
+          },
+          "case_7UF": {
+            "type": "number",
+            "description": "Case 7UF : Dons autres organismes"
+          },
+          "case_7WF": {
+            "type": "number",
+            "description": "Case 7WF : Dépenses éligibles MaPrimeRénov' / transition énergie"
+          },
+          "revenu_fiscal_reference": {
+            "type": "number",
+            "description": "Revenu fiscal de référence (RFR) de l'avis précédent"
+          },
+          "situation_famille": {
+            "type": "string",
+            "enum": [
+              "celibataire",
+              "marie",
+              "pacse",
+              "divorce",
+              "veuf"
+            ]
+          },
+          "nb_enfants": {
+            "type": "integer",
+            "default": 0
+          },
+          "nb_parts": {
+            "type": "number",
+            "description": "Nombre de parts de l'avis d'imposition"
+          }
+        },
+        "required": [
+          "situation_famille"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "diagnostic_fiscal_complet",
+      "description": "Diagnostic fiscal complet par questionnaire. Posez vos informations et obtenez une analyse 360° : propriétaire ou locataire, travaux de rénovation, enfants, emploi, épargne, investissements, dons, situation familiale. Génère un rapport personnalisé avec toutes les pistes d'économies fiscales.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "situation_famille": {
+            "type": "string",
+            "enum": [
+              "celibataire",
+              "marie",
+              "pacse",
+              "divorce",
+              "veuf"
+            ],
+            "description": "Situation familiale"
+          },
+          "age": {
+            "type": "integer",
+            "description": "Âge du contribuable principal"
+          },
+          "nb_enfants_charge": {
+            "type": "integer",
+            "default": 0,
+            "description": "Nombre d'enfants à charge"
+          },
+          "nb_enfants_moins_6ans": {
+            "type": "integer",
+            "default": 0,
+            "description": "Dont enfants de moins de 6 ans"
+          },
+          "parents_a_charge": {
+            "type": "boolean",
+            "default": false,
+            "description": "A-t-on des parents ou ascendants à charge ?"
+          },
+          "salaire_net_annuel": {
+            "type": "number",
+            "description": "Salaire(s) net(s) annuel(s) total du foyer"
+          },
+          "revenus_fonciers": {
+            "type": "number",
+            "default": 0,
+            "description": "Revenus locatifs bruts annuels"
+          },
+          "revenus_capitaux": {
+            "type": "number",
+            "default": 0,
+            "description": "Dividendes et intérêts taxables"
+          },
+          "revenu_independant": {
+            "type": "number",
+            "default": 0,
+            "description": "BNC/BIC (indépendant/freelance)"
+          },
+          "statut_logement": {
+            "type": "string",
+            "enum": [
+              "proprietaire_residence_principale",
+              "proprietaire_locatif",
+              "locataire",
+              "loge_gratuit"
+            ],
+            "description": "Statut vis-à-vis du logement"
+          },
+          "annee_construction_bien": {
+            "type": "integer",
+            "description": "Année de construction du bien (si propriétaire)"
+          },
+          "dpe_actuel": {
+            "type": "string",
+            "enum": [
+              "A",
+              "B",
+              "C",
+              "D",
+              "E",
+              "F",
+              "G",
+              "inconnu"
+            ],
+            "description": "DPE actuel du logement (si propriétaire)"
+          },
+          "surface_m2": {
+            "type": "number",
+            "description": "Surface du logement en m²"
+          },
+          "a_fait_travaux_recents": {
+            "type": "boolean",
+            "default": false,
+            "description": "A-t-on fait des travaux de rénovation récemment ?"
+          },
+          "travaux_envisages": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Travaux envisagés (ex: ['isolation_combles', 'pompe_chaleur_air_eau', 'fenetres'])"
+          },
+          "budget_travaux": {
+            "type": "number",
+            "description": "Budget total envisagé pour les travaux"
+          },
+          "a_pea": {
+            "type": "boolean",
+            "default": false,
+            "description": "Possède un PEA ?"
+          },
+          "a_assurance_vie": {
+            "type": "boolean",
+            "default": false,
+            "description": "Possède une assurance-vie ?"
+          },
+          "a_per": {
+            "type": "boolean",
+            "default": false,
+            "description": "Possède un PER ?"
+          },
+          "versements_per_annuels": {
+            "type": "number",
+            "default": 0,
+            "description": "Versements PER effectués cette année"
+          },
+          "a_livret_a_plein": {
+            "type": "boolean",
+            "default": false,
+            "description": "Livret A au plafond ?"
+          },
+          "a_employe_domicile": {
+            "type": "boolean",
+            "default": false,
+            "description": "Emploie une personne à domicile ?"
+          },
+          "depenses_domicile_annuelles": {
+            "type": "number",
+            "default": 0,
+            "description": "Dépenses emploi domicile annuelles"
+          },
+          "depenses_garde_enfants": {
+            "type": "number",
+            "default": 0,
+            "description": "Frais garde enfants hors domicile"
+          },
+          "fait_des_dons": {
+            "type": "boolean",
+            "default": false,
+            "description": "Fait des dons à des associations ?"
+          },
+          "montant_dons_annuels": {
+            "type": "number",
+            "default": 0,
+            "description": "Montant total des dons annuels"
+          },
+          "a_pension_alimentaire": {
+            "type": "boolean",
+            "default": false,
+            "description": "Verse une pension alimentaire ?"
+          },
+          "type_emploi": {
+            "type": "string",
+            "enum": [
+              "salarie",
+              "fonctionnaire",
+              "independant",
+              "retraite",
+              "sans_emploi",
+              "mixte"
+            ],
+            "description": "Type d'emploi"
+          },
+          "teletravail_jours_semaine": {
+            "type": "number",
+            "default": 0,
+            "description": "Jours de télétravail par semaine"
+          },
+          "distance_travail_km": {
+            "type": "number",
+            "default": 0,
+            "description": "Distance domicile-travail en km"
+          },
+          "a_credit_immobilier": {
+            "type": "boolean",
+            "default": false,
+            "description": "A un crédit immobilier en cours ?"
+          },
+          "investissement_pme_envisage": {
+            "type": "boolean",
+            "default": false,
+            "description": "Envisage d'investir dans des PME ?"
+          },
+          "patrimoine_total_estime": {
+            "type": "number",
+            "description": "Patrimoine immobilier total estimé (pour IFI)"
+          }
+        },
+        "required": [
+          "situation_famille",
+          "salaire_net_annuel"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "guide_maprimerenov",
+      "description": "Guide complet MaPrimeRénov' 2025 : catégories de revenus, travaux éligibles, montants des aides, conditions, démarches. Calcule l'aide estimée selon les revenus et les travaux envisagés.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "revenu_fiscal_reference": {
+            "type": "number",
+            "description": "Revenu fiscal de référence (RFR) du foyer"
+          },
+          "nb_parts": {
+            "type": "number",
+            "description": "Nombre de parts fiscales",
+            "default": 1
+          },
+          "travaux_envisages": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "isolation_combles",
+                "isolation_murs",
+                "isolation_plancher",
+                "pompe_chaleur_air_eau",
+                "pompe_chaleur_geothermique",
+                "chaudiere_bois",
+                "poele_granules",
+                "vmc_double_flux",
+                "fenetres",
+                "audit_energetique"
+              ]
+            },
+            "description": "Liste des travaux envisagés"
+          },
+          "budget_total": {
+            "type": "number",
+            "description": "Budget total envisagé pour les travaux"
+          },
+          "dpe_actuel": {
+            "type": "string",
+            "enum": [
+              "A",
+              "B",
+              "C",
+              "D",
+              "E",
+              "F",
+              "G",
+              "inconnu"
+            ],
+            "description": "Classe énergie DPE actuelle du logement",
+            "default": "inconnu"
+          },
+          "dpe_cible": {
+            "type": "string",
+            "enum": [
+              "A",
+              "B",
+              "C",
+              "D",
+              "E",
+              "F",
+              "G",
+              "inconnu"
+            ],
+            "description": "Classe énergie DPE visée après travaux",
+            "default": "inconnu"
+          }
+        },
+        "required": [
+          "revenu_fiscal_reference"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "checker_eligibilite_aides",
+      "description": "Vérifie les aides et dispositifs auxquels vous pourriez être éligible selon votre situation : LEP, prime activité, APL, bourses, exonérations.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "revenu_fiscal_reference": {
+            "type": "number",
+            "description": "Revenu fiscal de référence (RFR, visible sur l'avis d'imposition)"
+          },
+          "nb_parts": {
+            "type": "number",
+            "description": "Nombre de parts fiscales",
+            "default": 1
+          },
+          "situation_famille": {
+            "type": "string",
+            "enum": [
+              "celibataire",
+              "marie",
+              "pacse",
+              "divorce",
+              "veuf"
+            ]
+          },
+          "nb_enfants": {
+            "type": "integer",
+            "default": 0
+          },
+          "age": {
+            "type": "integer",
+            "description": "Âge du contribuable"
+          }
+        },
+        "required": [
+          "revenu_fiscal_reference",
+          "situation_famille"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "calculer_ifi",
+      "description": "Calcule l'Impôt sur la Fortune Immobilière (IFI) 2026. S'applique si le patrimoine immobilier net dépasse 1 300 000€. Prend en compte l'abattement de 30% sur la résidence principale, les dettes déductibles et les biens professionnels exonérés.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "patrimoine_immobilier_brut": {
+            "type": "number",
+            "description": "Valeur totale brute de vos biens immobiliers (marché)"
+          },
+          "valeur_residence_principale": {
+            "type": "number",
+            "description": "Valeur de la résidence principale (abattement 30% appliqué)",
+            "default": 0
+          },
+          "dettes_deductibles": {
+            "type": "number",
+            "description": "Dettes déductibles : emprunts immobiliers restants, taxes foncières dues...",
+            "default": 0
+          },
+          "biens_professionnels": {
+            "type": "number",
+            "description": "Valeur des biens professionnels exonérés (LMP sous conditions, SCI professionnelle...)",
+            "default": 0
+          },
+          "revenu_net_imposable": {
+            "type": "number",
+            "description": "Revenu net imposable (pour vérifier le plafonnement IFI)",
+            "default": 0
+          }
+        },
+        "required": [
+          "patrimoine_immobilier_brut"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "optimiser_tns",
+      "description": "Optimisation fiscale spécifique aux travailleurs non-salariés (TNS) : auto-entrepreneurs, indépendants, freelances, gérants. Analyse le régime fiscal optimal (micro vs réel), les déductions Madelin, l'article 154 bis, PER Madelin, et compare EI / EURL / SASU.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "statut_juridique": {
+            "type": "string",
+            "enum": [
+              "micro_entrepreneur",
+              "ei_reel",
+              "eurl_ir",
+              "eurl_is",
+              "sasu",
+              "sarl"
+            ],
+            "description": "Statut juridique actuel"
+          },
+          "type_activite": {
+            "type": "string",
+            "enum": [
+              "vente_marchandises",
+              "prestations_services_bic",
+              "prestations_liberales_bnc"
+            ],
+            "description": "Type d'activité"
+          },
+          "chiffre_affaires": {
+            "type": "number",
+            "description": "Chiffre d'affaires annuel HT"
+          },
+          "charges_reelles": {
+            "type": "number",
+            "description": "Charges professionnelles réelles annuelles (hors cotisations sociales)",
+            "default": 0
+          },
+          "cotisations_sociales": {
+            "type": "number",
+            "description": "Cotisations sociales payées (TNS / URSSAF)",
+            "default": 0
+          },
+          "situation_famille": {
+            "type": "string",
+            "enum": [
+              "celibataire",
+              "marie",
+              "pacse",
+              "divorce",
+              "veuf"
+            ],
+            "default": "celibataire"
+          },
+          "nb_enfants": {
+            "type": "integer",
+            "default": 0
+          },
+          "a_madelin": {
+            "type": "boolean",
+            "description": "Avez-vous des contrats Madelin (prévoyance/retraite) ?",
+            "default": false
+          },
+          "cotisations_madelin": {
+            "type": "number",
+            "description": "Montant annuel cotisations Madelin si existantes",
+            "default": 0
+          },
+          "premiere_annee": {
+            "type": "boolean",
+            "description": "Première année d'activité ? (ACRE possible)",
+            "default": false
+          }
+        },
+        "required": [
+          "statut_juridique",
+          "type_activite",
+          "chiffre_affaires"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "comparer_scenarios",
+      "description": "Compare jusqu'à 3 scénarios fiscaux côte à côte. Utile pour : comparer avec/sans PER, avec/sans dons, avant/après changement de situation, ou comparer deux stratégies d'optimisation différentes.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "scenarios": {
+            "type": "array",
+            "description": "Liste de 2 ou 3 scénarios à comparer",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "description": "Nom du scénario (ex: 'Situation actuelle')"
+                },
+                "revenu_net_imposable": {
+                  "type": "number"
+                },
+                "situation_famille": {
+                  "type": "string",
+                  "enum": [
+                    "celibataire",
+                    "marie",
+                    "pacse",
+                    "divorce",
+                    "veuf"
+                  ]
+                },
+                "nb_enfants": {
+                  "type": "integer",
+                  "default": 0
+                },
+                "versement_per": {
+                  "type": "number",
+                  "default": 0
+                },
+                "dons_75": {
+                  "type": "number",
+                  "default": 0
+                },
+                "dons_66": {
+                  "type": "number",
+                  "default": 0
+                },
+                "emploi_domicile": {
+                  "type": "number",
+                  "default": 0
+                },
+                "garde_enfants": {
+                  "type": "number",
+                  "default": 0
+                }
+              },
+              "required": [
+                "label",
+                "revenu_net_imposable",
+                "situation_famille"
+              ]
+            },
+            "minItems": 2,
+            "maxItems": 3
+          }
+        },
+        "required": [
+          "scenarios"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "calculer_prelevement_source",
+      "description": "Calcule et explique le taux de prélèvement à la source (PAS). Indique le taux personnalisé estimé, le taux neutre, les mensualités prélevées, et comment moduler (à la hausse ou à la baisse) via impots.gouv.fr.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "revenu_net_imposable": {
+            "type": "number",
+            "description": "Revenu net imposable annuel estimé"
+          },
+          "situation_famille": {
+            "type": "string",
+            "enum": [
+              "celibataire",
+              "marie",
+              "pacse",
+              "divorce",
+              "veuf"
+            ]
+          },
+          "nb_enfants": {
+            "type": "integer",
+            "default": 0
+          },
+          "salaire_mensuel_net": {
+            "type": "number",
+            "description": "Salaire mensuel net (pour calculer la retenue mensuelle)"
+          },
+          "revenus_complementaires": {
+            "type": "number",
+            "description": "Autres revenus annuels (fonciers, BIC, BNC...) soumis à acompte",
+            "default": 0
+          }
+        },
+        "required": [
+          "revenu_net_imposable",
+          "situation_famille"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "simuler_droits_donation",
+      "description": "Calcule les droits de donation selon le lien de parenté. Prend en compte les abattements (100 000€ enfant/parent tous les 15 ans, 80 724€ conjoint...), le barème progressif, et les dons d'argent exonérés. Utile pour planifier une transmission de patrimoine.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "montant_donation": {
+            "type": "number",
+            "description": "Montant de la donation en euros"
+          },
+          "lien_parente": {
+            "type": "string",
+            "enum": [
+              "enfant_parent",
+              "petit_enfant",
+              "arriere_petit_enfant",
+              "conjoint_pacs",
+              "frere_soeur",
+              "neveu_niece",
+              "autre"
+            ],
+            "description": "Lien de parenté entre donateur et bénéficiaire"
+          },
+          "donations_anterieures": {
+            "type": "number",
+            "description": "Montant des donations déjà réalisées dans les 15 dernières années (réduit l'abattement disponible)",
+            "default": 0
+          },
+          "don_argent_exonere": {
+            "type": "boolean",
+            "description": "S'agit-il d'un don de somme d'argent ? (exonération supplémentaire possible de 31 865€)",
+            "default": false
+          },
+          "age_donateur": {
+            "type": "integer",
+            "description": "Âge du donateur (le don d'argent exonéré requiert donateur < 80 ans)"
+          }
+        },
+        "required": [
+          "montant_donation",
+          "lien_parente"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "calculer_succession",
+      "description": "Calcule les droits de succession selon les héritiers et le patrimoine transmis. Conjoint/PACS totalement exonéré. Enfants : abattement 100 000€ chacun. Simule la répartition optimale et les stratégies d'anticipation.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "actif_net_succession": {
+            "type": "number",
+            "description": "Actif net successoral (tous biens - dettes - frais funéraires)"
+          },
+          "heritiers": {
+            "type": "array",
+            "description": "Liste des héritiers",
+            "items": {
+              "type": "object",
+              "properties": {
+                "lien": {
+                  "type": "string",
+                  "enum": [
+                    "conjoint_pacs",
+                    "enfant",
+                    "petit_enfant",
+                    "frere_soeur",
+                    "neveu_niece",
+                    "autre"
+                  ]
+                },
+                "nb": {
+                  "type": "integer",
+                  "description": "Nombre d'héritiers de ce type",
+                  "default": 1
+                },
+                "donations_anterieures": {
+                  "type": "number",
+                  "description": "Donations reçues dans les 15 ans (réduit l'abattement)",
+                  "default": 0
+                },
+                "handicape": {
+                  "type": "boolean",
+                  "description": "Héritier en situation de handicap (+159 325€ d'abattement)",
+                  "default": false
+                }
+              },
+              "required": [
+                "lien"
+              ]
+            }
+          },
+          "assurance_vie_hors_succession": {
+            "type": "number",
+            "description": "Capitaux assurance-vie transmis hors succession (exonérés jusqu'à 152 500€/bénéf.)",
+            "default": 0
+          }
+        },
+        "required": [
+          "actif_net_succession",
+          "heritiers"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "simuler_scpi",
+      "description": "Simule la fiscalité d'un investissement SCPI (Société Civile de Placement Immobilier). Calcule l'impôt sur les revenus fonciers SCPI, les prélèvements sociaux, le rendement net de fiscalité, et explique les options (pleine propriété, démembrement, assurance-vie).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "montant_investi": {
+            "type": "number",
+            "description": "Capital investi dans la SCPI en euros"
+          },
+          "rendement_brut_pct": {
+            "type": "number",
+            "description": "Taux de distribution brut annuel (ex: 5.0 pour 5%)"
+          },
+          "revenu_net_imposable_hors_scpi": {
+            "type": "number",
+            "description": "Revenu net imposable du foyer hors revenus SCPI"
+          },
+          "situation_famille": {
+            "type": "string",
+            "enum": [
+              "celibataire",
+              "marie",
+              "pacse",
+              "divorce",
+              "veuf"
+            ],
+            "default": "celibataire"
+          },
+          "nb_enfants": {
+            "type": "integer",
+            "default": 0
+          },
+          "type_detention": {
+            "type": "string",
+            "enum": [
+              "pleine_propriete",
+              "assurance_vie",
+              "nue_propriete"
+            ],
+            "description": "Mode de détention des parts SCPI",
+            "default": "pleine_propriete"
+          },
+          "duree_detention_nue_propriete": {
+            "type": "integer",
+            "description": "Durée du démembrement en années (si nue_propriete)",
+            "default": 10
+          },
+          "autres_revenus_fonciers": {
+            "type": "number",
+            "description": "Autres revenus fonciers existants (pour vérifier seuil micro-foncier)",
+            "default": 0
+          }
+        },
+        "required": [
+          "montant_investi",
+          "rendement_brut_pct",
+          "revenu_net_imposable_hors_scpi",
+          "situation_famille"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "guide_fiscalite_internationale",
+      "description": "Guide de la fiscalité internationale pour les résidents français : résidence fiscale, formulaire 2047, méthodes pour éviter la double imposition (crédit d'impôt ou exemption avec progressivité). Couvre : Irlande, Suisse, Luxembourg, Belgique, Allemagne, UK, USA, Espagne, Italie, Portugal, Canada, Maroc, Tunisie, Algérie. Mentionne les particularités Alsace-Moselle.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "pays": {
+            "type": "string",
+            "description": "Pays concerné (ex: 'ireland', 'suisse', 'luxembourg', 'belgique', 'allemagne', 'royaume_uni', 'etats_unis', 'espagne', 'italie', 'portugal', 'canada', 'maroc', 'tunisie', 'algerie'). Laisser vide pour guide général."
+          },
+          "situation": {
+            "type": "string",
+            "enum": [
+              "resident_francais_revenus_etrangers",
+              "non_resident_revenus_france",
+              "frontalier",
+              "expatrie_retour",
+              "general"
+            ],
+            "description": "Situation du contribuable",
+            "default": "general"
+          },
+          "departement_alsace_moselle": {
+            "type": "boolean",
+            "description": "Résidez-vous en Alsace-Moselle (dép. 57, 67, 68) ?",
+            "default": false
+          }
+        },
+        "required": []
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "calculer_revenu_etranger",
+      "description": "Intègre un revenu étranger dans le calcul IR français. Applique automatiquement la bonne méthode selon la convention fiscale (crédit d'impôt ou exemption avec progressivité). Calcule l'IR total, le crédit d'impôt, et l'IR net à payer en France. Supporte : Irlande, Suisse, Luxembourg, Belgique, Allemagne, et autres.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "revenu_france": {
+            "type": "number",
+            "description": "Revenu net imposable de source française (salaires, fonciers...) en euros",
+            "default": 0
+          },
+          "revenu_etranger_eur": {
+            "type": "number",
+            "description": "Revenu étranger converti en euros (au taux de change moyen annuel)"
+          },
+          "pays": {
+            "type": "string",
+            "description": "Code pays (ireland, suisse, luxembourg, belgique, allemagne, royaume_uni, etats_unis, espagne, italie, portugal, canada, maroc, sans_convention...)"
+          },
+          "type_revenu": {
+            "type": "string",
+            "enum": [
+              "salaire",
+              "dividendes",
+              "interets",
+              "pension",
+              "immobilier",
+              "autre"
+            ],
+            "description": "Nature du revenu étranger",
+            "default": "salaire"
+          },
+          "impot_paye_etranger": {
+            "type": "number",
+            "description": "Impôt déjà payé à l'étranger sur ce revenu (en euros)",
+            "default": 0
+          },
+          "situation_famille": {
+            "type": "string",
+            "enum": [
+              "celibataire",
+              "marie",
+              "pacse",
+              "divorce",
+              "veuf"
+            ],
+            "default": "celibataire"
+          },
+          "nb_enfants": {
+            "type": "integer",
+            "default": 0
+          }
+        },
+        "required": [
+          "revenu_etranger_eur",
+          "pays",
+          "situation_famille"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "guide_frontaliers",
+      "description": "Guide fiscal spécialisé pour les travailleurs frontaliers français : Suisse (régime canton par canton, accord 1983 + nouvel accord 2023), Luxembourg (imposition au Luxembourg, déclaration en France), Belgique et Allemagne. Calcule l'impact sur la déclaration française et les obligations.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "pays_emploi": {
+            "type": "string",
+            "enum": [
+              "suisse",
+              "luxembourg",
+              "belgique",
+              "allemagne"
+            ],
+            "description": "Pays où vous travaillez"
+          },
+          "canton_suisse": {
+            "type": "string",
+            "description": "Canton suisse (si pays = suisse) : geneve, vaud, bale, zurich, neuchatel, etc."
+          },
+          "salaire_brut_etranger": {
+            "type": "number",
+            "description": "Salaire brut annuel dans le pays d'emploi (en devise locale)"
+          },
+          "devise": {
+            "type": "string",
+            "enum": [
+              "EUR",
+              "CHF",
+              "GBP"
+            ],
+            "description": "Devise du salaire étranger (CHF pour Suisse)",
+            "default": "EUR"
+          },
+          "taux_change": {
+            "type": "number",
+            "description": "Taux de change moyen annuel (ex: 1.05 pour 1 CHF = 1.05 EUR). Défaut : taux indicatifs."
+          },
+          "revenu_france": {
+            "type": "number",
+            "description": "Autres revenus de source française (si vous avez des revenus en France aussi)",
+            "default": 0
+          },
+          "situation_famille": {
+            "type": "string",
+            "enum": [
+              "celibataire",
+              "marie",
+              "pacse",
+              "divorce",
+              "veuf"
+            ],
+            "default": "celibataire"
+          },
+          "nb_enfants": {
+            "type": "integer",
+            "default": 0
+          },
+          "teletravail_jours_par_semaine": {
+            "type": "number",
+            "description": "Jours de télétravail depuis la France par semaine (impact fiscal depuis 2023)",
+            "default": 0
+          }
+        },
+        "required": [
+          "pays_emploi",
+          "salaire_brut_etranger",
+          "situation_famille"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "calculer_fiscalite_crypto",
+      "description": "Calcule la fiscalité des cryptomonnaies selon la méthode officielle 2086 (FIFO/PAMC). Gère PFU 30%, option barème IR, moins-values reportables sur 10 ans, revenus staking/mining/DeFi/NFT/airdrops. Remplace le calcul simplifié.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "prix_total_cession": {
+            "type": "number",
+            "description": "Total des prix de cession de l'année (toutes cessions crypto→fiat ou crypto→bien)"
+          },
+          "valeur_portefeuille_avant_cession": {
+            "type": "number",
+            "description": "Valeur totale du portefeuille crypto juste avant la cession (en euros)"
+          },
+          "prix_acquisition_moyen_portefeuille": {
+            "type": "number",
+            "description": "Prix total d'acquisition moyen du portefeuille (PAMC — somme des coûts d'acquisition)"
+          },
+          "moins_values_anterieures": {
+            "type": "number",
+            "description": "Moins-values crypto reportables des années antérieures (max 10 ans)",
+            "default": 0
+          },
+          "revenus_staking": {
+            "type": "number",
+            "description": "Revenus de staking/yield farming perçus dans l'année (BNC, imposables à réception)",
+            "default": 0
+          },
+          "revenus_mining": {
+            "type": "number",
+            "description": "Revenus de minage (BIC si activité répétée, BNC si occasionnel)",
+            "default": 0
+          },
+          "revenus_nft": {
+            "type": "number",
+            "description": "Revenus NFT (BNC si créateur ; si acheteur-revendeur, traité comme PV crypto)",
+            "default": 0
+          },
+          "tmi": {
+            "type": "number",
+            "description": "Tranche marginale d'imposition en % (pour comparer PFU vs barème IR)",
+            "default": 30
+          },
+          "situation_famille": {
+            "type": "string",
+            "enum": [
+              "celibataire",
+              "marie",
+              "pacse",
+              "divorce",
+              "veuf"
+            ],
+            "default": "celibataire"
+          },
+          "nb_enfants": {
+            "type": "integer",
+            "default": 0
+          }
+        },
+        "required": [
+          "prix_total_cession",
+          "valeur_portefeuille_avant_cession",
+          "prix_acquisition_moyen_portefeuille"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "simuler_pacte_dutreil",
+      "description": "Simule l'optimisation fiscale d'un Pacte Dutreil (art. 787 B CGI) pour la transmission d'entreprise familiale. Calcule l'exonération de 75% de la valeur des parts, les droits de donation ou succession avec et sans Dutreil, et les conditions à respecter.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "valeur_entreprise": {
+            "type": "number",
+            "description": "Valeur totale de l'entreprise (parts/actions) à transmettre en euros"
+          },
+          "lien_parente": {
+            "type": "string",
+            "enum": [
+              "enfant",
+              "frere_soeur",
+              "neveu_niece",
+              "tiers"
+            ],
+            "description": "Lien de parenté entre le donateur/défunt et le bénéficiaire"
+          },
+          "nb_donataires": {
+            "type": "integer",
+            "description": "Nombre de bénéficiaires (enfants, héritiers…)",
+            "default": 1
+          },
+          "age_donateur": {
+            "type": "integer",
+            "description": "Age du donateur au moment de la transmission"
+          },
+          "donateur_dirigeant": {
+            "type": "boolean",
+            "description": "Le donateur/défunt exerce-t-il une fonction de direction dans l'entreprise ?",
+            "default": true
+          },
+          "transmission_type": {
+            "type": "string",
+            "enum": [
+              "donation",
+              "succession"
+            ],
+            "description": "Type de transmission : donation du vivant ou succession"
+          }
+        },
+        "required": [
+          "valeur_entreprise",
+          "lien_parente",
+          "age_donateur",
+          "transmission_type"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "simuler_sci",
+      "description": "Compare les deux régimes fiscaux d'une SCI (Société Civile Immobilière) : SCI à l'IR (translucide, revenus fonciers) vs SCI à l'IS (amortissements, IS 15%/25%). Calcule les revenus nets après impôt, avantages transmission et fiscalité à la revente.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "valeur_bien": {
+            "type": "number",
+            "description": "Valeur vénale du bien immobilier apporté à la SCI (en euros)"
+          },
+          "loyers_annuels": {
+            "type": "number",
+            "description": "Total des loyers bruts annuels perçus par la SCI"
+          },
+          "charges_annuelles": {
+            "type": "number",
+            "description": "Charges annuelles hors intérêts d'emprunt (entretien, gestion, assurance, taxe foncière…)"
+          },
+          "interet_emprunt": {
+            "type": "number",
+            "description": "Intérêts d'emprunt annuels (déductibles dans les deux régimes)",
+            "default": 0
+          },
+          "tmi": {
+            "type": "number",
+            "description": "Tranche marginale d'imposition de l'associé principal (%)",
+            "default": 30
+          },
+          "nb_parts": {
+            "type": "integer",
+            "description": "Nombre total de parts de la SCI",
+            "default": 100
+          },
+          "parts_contribuable": {
+            "type": "integer",
+            "description": "Nombre de parts détenues par le contribuable (pour quote-part)",
+            "default": 100
+          },
+          "horizon_revente_ans": {
+            "type": "integer",
+            "description": "Horizon de revente du bien (en années) — impact majeur sur la fiscalité IS à la sortie",
+            "default": 20
+          }
+        },
+        "required": [
+          "valeur_bien",
+          "loyers_annuels",
+          "charges_annuelles"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "optimiser_epargne_salariale",
+      "description": "Optimise l'épargne salariale : intéressement, participation, PEE, PERCO/PERCOL, abondement employeur, AGA (actions gratuites d'attribution), BSPCE. Compare la fiscalité de chaque dispositif et recommande la stratégie optimale.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "type_dispositif": {
+            "type": "string",
+            "enum": [
+              "interessement",
+              "participation",
+              "pee",
+              "perco",
+              "aga",
+              "bspce",
+              "synthese"
+            ],
+            "description": "Type de dispositif d'épargne salariale à analyser"
+          },
+          "montant": {
+            "type": "number",
+            "default": 0,
+            "description": "Montant du versement ou du gain"
+          },
+          "abondement_employeur": {
+            "type": "number",
+            "default": 0,
+            "description": "Abondement de l'employeur"
+          },
+          "tmi": {
+            "type": "number",
+            "default": 30,
+            "description": "Taux marginal d'imposition (%)"
+          },
+          "annees_blocage_restantes": {
+            "type": "integer",
+            "default": 0,
+            "description": "Années de blocage restantes"
+          },
+          "moins_3ans_societe": {
+            "type": "boolean",
+            "default": false,
+            "description": "Présent dans la société depuis moins de 3 ans (BSPCE : taux majoré à 47.2%)"
+          }
+        },
+        "required": [
+          "type_dispositif"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "calculer_impot_societes",
+      "description": "Calcule l'impôt sur les sociétés (IS) : taux réduit PME 15% jusqu'à 42 500€ de bénéfice, taux normal 25%. Vérifie l'éligibilité, calcule les acomptes trimestriels, analyse le déficit reportable et la contribution sociale sur hauts bénéfices.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "benefice": {
+            "type": "number",
+            "description": "Bénéfice imposable de l'exercice (avant IS)"
+          },
+          "ca": {
+            "type": "number",
+            "description": "Chiffre d'affaires HT (condition éligibilité taux réduit : CA < 10M€)"
+          },
+          "capital_personnes_physiques_pct": {
+            "type": "number",
+            "default": 100,
+            "description": "% du capital détenu par des personnes physiques (condition taux réduit PME ≥ 75%)"
+          },
+          "deficit_reporte": {
+            "type": "number",
+            "default": 0,
+            "description": "Déficits antérieurs reportables en avant (réduisent le bénéfice imposable)"
+          }
+        },
+        "required": [
+          "benefice"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "optimiser_remuneration_dirigeant",
+      "description": "Optimise la rémunération du dirigeant entre salaire et dividendes (SASU, EURL IS, SARL IS). Compare IS + charges sociales + IR pour différentes répartitions. Calcule le net perçu, le coût pour la société et le taux de prélèvement effectif.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "benefice_brut_societe": {
+            "type": "number",
+            "description": "Résultat de la société AVANT rémunération du dirigeant et IS"
+          },
+          "remuneration_souhaitee": {
+            "type": "number",
+            "description": "Rémunération brute annuelle souhaitée pour le dirigeant"
+          },
+          "structure": {
+            "type": "string",
+            "enum": [
+              "sasu",
+              "eurl_is",
+              "sarl_is"
+            ],
+            "description": "Forme juridique : SASU (assimilé salarié), EURL IS ou SARL IS (gérant TNS)"
+          },
+          "situation_famille": {
+            "type": "string",
+            "enum": [
+              "celibataire",
+              "marie",
+              "pacse",
+              "divorce",
+              "veuf"
+            ],
+            "default": "celibataire"
+          },
+          "nb_enfants": {
+            "type": "integer",
+            "default": 0
+          }
+        },
+        "required": [
+          "benefice_brut_societe",
+          "remuneration_souhaitee",
+          "structure",
+          "situation_famille"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "guide_evenements_vie",
+      "description": "Guide fiscal sur les grands événements de vie et leur impact sur la déclaration de revenus : mariage, PACS, divorce/séparation, naissance, garde alternée, enfant majeur rattaché, décès du conjoint. Explique les règles de quotient familial, les choix déclaratifs disponibles et simule l'impact fiscal.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "evenement": {
+            "type": "string",
+            "enum": [
+              "mariage",
+              "divorce",
+              "naissance",
+              "garde_alternee",
+              "enfant_majeur",
+              "deces_conjoint"
+            ],
+            "description": "Type d'événement de vie survenu au cours de l'année"
+          },
+          "situation_actuelle": {
+            "type": "string",
+            "description": "Situation familiale actuelle (ex: 'célibataire avant mariage', 'marié avec 2 enfants')"
+          },
+          "nb_enfants": {
+            "type": "integer",
+            "description": "Nombre d'enfants à charge (hors garde alternée)",
+            "default": 0
+          },
+          "nb_enfants_garde_alternee": {
+            "type": "integer",
+            "description": "Nombre d'enfants en garde alternée",
+            "default": 0
+          },
+          "revenu_annuel": {
+            "type": "number",
+            "description": "Revenu net imposable annuel (pour simulation d'impact fiscal)",
+            "default": 0
+          },
+          "age_enfant": {
+            "type": "integer",
+            "description": "Age de l'enfant (pour le cas 'enfant_majeur', rattachement possible jusqu'à 25 ans)"
+          }
+        },
+        "required": [
+          "evenement",
+          "situation_actuelle"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "calculer_revenus_remplacement",
+      "description": "Calcule le traitement fiscal des revenus de remplacement : allocations chômage (ARE), pensions de retraite, rentes viagères à titre onéreux (RVTO), indemnités de licenciement, pensions d'invalidité. Applique les abattements spécifiques et compare avec les revenus d'activité.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "type_revenu": {
+            "type": "string",
+            "enum": [
+              "chomage",
+              "retraite",
+              "rente_viagere",
+              "indemnite_licenciement",
+              "invalidite"
+            ],
+            "description": "Type de revenu de remplacement"
+          },
+          "montant": {
+            "type": "number",
+            "description": "Montant brut annuel du revenu de remplacement (en euros)"
+          },
+          "situation_famille": {
+            "type": "string",
+            "enum": [
+              "celibataire",
+              "marie",
+              "pacse",
+              "divorce",
+              "veuf"
+            ],
+            "description": "Situation de famille"
+          },
+          "nb_enfants": {
+            "type": "integer",
+            "description": "Nombre d'enfants à charge",
+            "default": 0
+          },
+          "rni_autres_revenus": {
+            "type": "number",
+            "description": "Revenu net imposable des autres sources (salaires, foncier...) déjà dans le foyer",
+            "default": 0
+          },
+          "age_premier_versement_rente": {
+            "type": "integer",
+            "description": "Age lors du premier versement de la rente (uniquement pour type 'rente_viagere')"
+          },
+          "remuneration_annuelle_brute": {
+            "type": "number",
+            "description": "Rémunération brute annuelle de référence (pour indemnité licenciement)"
+          },
+          "indemnite_conventionnelle": {
+            "type": "number",
+            "description": "Montant de l'indemnité conventionnelle de licenciement (référence exonération)"
+          }
+        },
+        "required": [
+          "type_revenu",
+          "montant",
+          "situation_famille"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "simuler_sortie_per",
+      "description": "Simule les différents modes de sortie d'un PER (Plan Épargne Retraite) : sortie en rente ou en capital à la retraite, déblocage anticipé pour résidence principale ou cas exceptionnels (invalidité, décès conjoint, surendettement, fin droits chômage, liquidation). Compare la fiscalité nette pour chaque scénario selon que les versements ont été déduits ou non.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "capital_total": {
+            "type": "number",
+            "description": "Valeur totale du PER au moment de la sortie (versements + gains)"
+          },
+          "versements_cumules": {
+            "type": "number",
+            "description": "Total des versements effectués (hors gains)"
+          },
+          "versements_deduits": {
+            "type": "number",
+            "description": "Part des versements qui ont été fiscalement déduits du revenu imposable"
+          },
+          "tmi": {
+            "type": "number",
+            "description": "Taux marginal d'imposition actuel du foyer en % (ex: 30 pour TMI 30%)"
+          },
+          "situation": {
+            "type": "string",
+            "enum": [
+              "retraite_rente",
+              "retraite_capital",
+              "anticipation_rp",
+              "anticipation_exceptionnelle"
+            ],
+            "description": "Mode de sortie : 'retraite_rente' (rente à la retraite), 'retraite_capital' (capital à la retraite), 'anticipation_rp' (déblocage anticipé résidence principale), 'anticipation_exceptionnelle' (invalidité/décès conjoint/surendettement/fin droits/liquidation)"
+          },
+          "age": {
+            "type": "integer",
+            "description": "Age lors de la sortie (fraction RVTO pour rente selon l'âge)"
+          },
+          "rente_annuelle": {
+            "type": "number",
+            "description": "Rente annuelle versée (uniquement pour situation 'retraite_rente')"
+          }
+        },
+        "required": [
+          "capital_total",
+          "versements_cumules",
+          "versements_deduits",
+          "tmi",
+          "situation"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "simuler_depart_retraite",
+      "description": "Simule le départ à la retraite : estimation de la pension (régimes général, complémentaire AGIRC-ARRCO), impact de l'âge de départ (décote/surcote), cumul emploi-retraite, abattement fiscal 10% sur pensions. Compare les scénarios de départ à 62, 64, 67 ans.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "salaire_annuel_brut": {
+            "type": "number",
+            "description": "Dernier salaire annuel brut (base de calcul de la pension)"
+          },
+          "trimestres_valides": {
+            "type": "integer",
+            "description": "Nombre de trimestres cotisés à ce jour (tous régimes confondus)"
+          },
+          "age_actuel": {
+            "type": "integer",
+            "description": "Âge actuel (pour calculer les trimestres restants et la date de départ)"
+          },
+          "regime": {
+            "type": "string",
+            "enum": [
+              "prive",
+              "fonctionnaire",
+              "independant"
+            ],
+            "default": "prive",
+            "description": "Régime de retraite principal"
+          },
+          "situation_famille": {
+            "type": "string",
+            "enum": [
+              "celibataire",
+              "marie",
+              "pacse",
+              "divorce",
+              "veuf"
+            ],
+            "default": "celibataire"
+          },
+          "nb_enfants": {
+            "type": "integer",
+            "default": 0
+          },
+          "cumul_emploi_retraite": {
+            "type": "boolean",
+            "default": false,
+            "description": "Envisagez-vous de cumuler emploi et retraite ?"
+          },
+          "salaire_cumul": {
+            "type": "number",
+            "default": 0,
+            "description": "Revenu d'activité envisagé en cas de cumul emploi-retraite"
+          }
+        },
+        "required": [
+          "salaire_annuel_brut",
+          "trimestres_valides",
+          "age_actuel"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "guide_fiscalite_agricole",
+      "description": "Guide de la fiscalité agricole : régime du forfait collectif, régime simplifié (RSA), régime réel normal (RN). DPA (Déduction pour Aléas), DEP (Déduction pour Épargne de Précaution), exonération jeune agriculteur, TVA agricole, cotisations MSA.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "recettes_annuelles": {
+            "type": "number",
+            "description": "Recettes annuelles de l'exploitation agricole (HT)"
+          },
+          "regime": {
+            "type": "string",
+            "enum": [
+              "forfait",
+              "simplifie",
+              "reel_normal",
+              "auto"
+            ],
+            "default": "auto",
+            "description": "Régime fiscal souhaité (auto = déterminé selon les seuils)"
+          },
+          "benefice_agricole": {
+            "type": "number",
+            "default": 0,
+            "description": "Bénéfice agricole estimé (pour régimes réels)"
+          },
+          "dep_souhaitee": {
+            "type": "number",
+            "default": 0,
+            "description": "Montant de DEP (Déduction pour Épargne de Précaution) envisagé"
+          },
+          "jeune_agriculteur": {
+            "type": "boolean",
+            "default": false,
+            "description": "Jeune agriculteur (< 5 ans d'installation) — exonérations spécifiques"
+          },
+          "situation_famille": {
+            "type": "string",
+            "enum": [
+              "celibataire",
+              "marie",
+              "pacse",
+              "divorce",
+              "veuf"
+            ],
+            "default": "celibataire"
+          },
+          "nb_enfants": {
+            "type": "integer",
+            "default": 0
+          }
+        },
+        "required": [
+          "recettes_annuelles"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "guide_fiscalite_outremer",
+      "description": "Guide des dispositifs fiscaux spécifiques aux DOM-TOM (Guadeloupe, Martinique, Réunion, Guyane, Mayotte, Saint-Martin, Polynésie, Nouvelle-Calédonie…) : abattement spécifique IR 30%/40%, défiscalisation Girardin, loi Pinel outre-mer, exonérations entreprises, TVA NPR.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "territoire": {
+            "type": "string",
+            "enum": [
+              "guadeloupe",
+              "martinique",
+              "reunion",
+              "guyane",
+              "mayotte",
+              "saint_martin",
+              "saint_barthelemy",
+              "polynesie",
+              "nouvelle_caledonie",
+              "saint_pierre_miquelon",
+              "wallis_futuna"
+            ],
+            "description": "Territoire d'outre-mer de résidence ou d'investissement"
+          },
+          "situation": {
+            "type": "string",
+            "enum": [
+              "resident",
+              "investisseur_metropole"
+            ],
+            "default": "resident",
+            "description": "Résident du territoire ou investisseur depuis la métropole"
+          },
+          "revenu_net_imposable": {
+            "type": "number",
+            "default": 0,
+            "description": "Revenu net imposable annuel (pour calculer l'abattement spécifique DOM)"
+          },
+          "type_investissement": {
+            "type": "string",
+            "enum": [
+              "immobilier_locatif",
+              "girardin_industriel",
+              "pinel_om",
+              "creation_entreprise",
+              "aucun"
+            ],
+            "default": "aucun",
+            "description": "Type d'investissement outre-mer envisagé"
+          },
+          "montant_investissement": {
+            "type": "number",
+            "default": 0,
+            "description": "Montant de l'investissement (pour Girardin ou Pinel OM)"
+          },
+          "situation_famille": {
+            "type": "string",
+            "enum": [
+              "celibataire",
+              "marie",
+              "pacse",
+              "divorce",
+              "veuf"
+            ],
+            "default": "celibataire"
+          },
+          "nb_enfants": {
+            "type": "integer",
+            "default": 0
+          }
+        },
+        "required": [
+          "territoire"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "simuler_assurance_vie",
+      "description": "Simule la fiscalité de l'assurance-vie : rachats partiels/totaux (taux 7.5% après 8 ans, abattement 4 600€/9 200€), transmission au décès hors succession (152 500€/bénéficiaire), primes après 70 ans (abattement 30 500€). Compare PFU vs barème IR.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "capital_total": {
+            "type": "number",
+            "description": "Valeur actuelle du contrat"
+          },
+          "versements_cumules": {
+            "type": "number",
+            "description": "Total des primes versées"
+          },
+          "anciennete_ans": {
+            "type": "integer",
+            "default": 0,
+            "description": "Ancienneté du contrat en années"
+          },
+          "situation_famille": {
+            "type": "string",
+            "enum": [
+              "celibataire",
+              "marie",
+              "pacse",
+              "divorce",
+              "veuf"
+            ],
+            "default": "celibataire"
+          },
+          "nb_enfants": {
+            "type": "integer",
+            "default": 0
+          },
+          "type_operation": {
+            "type": "string",
+            "enum": [
+              "rachat_partiel",
+              "rachat_total",
+              "transmission"
+            ],
+            "default": "rachat_partiel"
+          },
+          "montant_rachat": {
+            "type": "number",
+            "default": 0,
+            "description": "Montant du rachat partiel envisagé"
+          },
+          "primes_versees_apres_70_ans": {
+            "type": "number",
+            "default": 0
+          },
+          "nb_beneficiaires": {
+            "type": "integer",
+            "default": 1
+          }
+        },
+        "required": [
+          "capital_total",
+          "versements_cumules"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "simuler_demembrement",
+      "description": "Simule le démembrement de propriété (usufruit/nue-propriété) : barème fiscal art. 669 CGI, calcul de la valeur de la nue-propriété selon l'âge, économies sur droits de donation, usufruit temporaire, donation-partage.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "valeur_pleine_propriete": {
+            "type": "number",
+            "description": "Valeur du bien en pleine propriété"
+          },
+          "age_usufruitier": {
+            "type": "integer",
+            "description": "Âge de l'usufruitier (barème art. 669 CGI)"
+          },
+          "type_operation": {
+            "type": "string",
+            "enum": [
+              "donation_nue_propriete",
+              "achat_demembre",
+              "usufruit_temporaire"
+            ],
+            "default": "donation_nue_propriete"
+          },
+          "lien_parente": {
+            "type": "string",
+            "enum": [
+              "enfant",
+              "frere_soeur",
+              "neveu_niece",
+              "conjoint",
+              "tiers"
+            ],
+            "default": "enfant"
+          },
+          "nb_donataires": {
+            "type": "integer",
+            "default": 1
+          },
+          "usufruit_temporaire": {
+            "type": "boolean",
+            "default": false
+          },
+          "duree_usufruit_temporaire": {
+            "type": "integer",
+            "default": 10,
+            "description": "Durée en années de l'usufruit temporaire"
+          }
+        },
+        "required": [
+          "valeur_pleine_propriete",
+          "age_usufruitier"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "simuler_cession_entreprise",
+      "description": "Simule la fiscalité de cession d'entreprise : PFU 30%, abattement renforcé PME (50%/65%/85%), abattement départ retraite dirigeant (500 000€), apport-cession avec report d'imposition (art. 150-0 B ter). Compare tous les régimes.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "prix_cession": {
+            "type": "number",
+            "description": "Prix de cession des titres ou du fonds"
+          },
+          "prix_acquisition": {
+            "type": "number",
+            "default": 0,
+            "description": "Prix d'acquisition initial"
+          },
+          "duree_detention_ans": {
+            "type": "integer",
+            "default": 0
+          },
+          "type_cession": {
+            "type": "string",
+            "enum": [
+              "titres_pme",
+              "fonds_commerce",
+              "titres_holding"
+            ],
+            "default": "titres_pme"
+          },
+          "depart_retraite_dirigeant": {
+            "type": "boolean",
+            "default": false,
+            "description": "Le cédant part à la retraite dans les 24 mois"
+          },
+          "situation_famille": {
+            "type": "string",
+            "enum": [
+              "celibataire",
+              "marie",
+              "pacse",
+              "divorce",
+              "veuf"
+            ],
+            "default": "celibataire"
+          },
+          "nb_enfants": {
+            "type": "integer",
+            "default": 0
+          },
+          "apport_avant_cession": {
+            "type": "boolean",
+            "default": false,
+            "description": "Apport des titres à une holding avant cession (report d'imposition)"
+          }
+        },
+        "required": [
+          "prix_cession"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "simuler_holding",
+      "description": "Simule l'intérêt d'une holding : régime mère-fille (IS sur 5% des dividendes), comparatif détention directe vs holding, intégration fiscale, réinvestissement optimisé.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "benefice_filiale": {
+            "type": "number",
+            "description": "Bénéfice net de la filiale après IS"
+          },
+          "taux_detention_holding": {
+            "type": "number",
+            "default": 100,
+            "description": "% détenu par la holding"
+          },
+          "dividendes_vers_personne_physique": {
+            "type": "number",
+            "default": 0,
+            "description": "Dividendes à redistribuer à l'actionnaire PP"
+          },
+          "montant_reinvestissement": {
+            "type": "number",
+            "default": 0
+          },
+          "situation_famille": {
+            "type": "string",
+            "enum": [
+              "celibataire",
+              "marie",
+              "pacse",
+              "divorce",
+              "veuf"
+            ],
+            "default": "celibataire"
+          },
+          "nb_enfants": {
+            "type": "integer",
+            "default": 0
+          },
+          "nb_filiales": {
+            "type": "integer",
+            "default": 1
+          }
+        },
+        "required": [
+          "benefice_filiale"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "calculer_tva",
+      "description": "Guide TVA complet : seuils de franchise en base 2025 (37 500€ services / 85 000€ marchandises), régime réel simplifié vs normal, taux 20%/10%/5.5%/2.1%, calcul TVA nette, TVA intracommunautaire (OSS, autoliquidation).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "chiffre_affaires_ht": {
+            "type": "number",
+            "default": 0
+          },
+          "type_activite": {
+            "type": "string",
+            "enum": [
+              "marchandises",
+              "services",
+              "liberal",
+              "mixte",
+              "agricole"
+            ],
+            "default": "services"
+          },
+          "regime": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "franchise",
+              "reel_simplifie",
+              "reel_normal"
+            ],
+            "default": "auto"
+          },
+          "tva_collectee": {
+            "type": "number",
+            "default": 0
+          },
+          "tva_deductible": {
+            "type": "number",
+            "default": 0
+          },
+          "ventes_intracommunautaires": {
+            "type": "number",
+            "default": 0
+          },
+          "achats_intracommunautaires": {
+            "type": "number",
+            "default": 0
+          }
+        },
+        "required": []
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "guide_auto_entrepreneur",
+      "description": "Guide complet auto-entrepreneur / micro-entrepreneur : seuils CA 2025, taux de cotisations, versement libératoire forfaitaire (VFL), ACRE, abattements IR, TVA franchise, CFE, obligations déclaratives, radiation.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "chiffre_affaires_annuel": {
+            "type": "number",
+            "default": 0
+          },
+          "type_activite": {
+            "type": "string",
+            "enum": [
+              "vente_marchandises",
+              "services_bic",
+              "services_bnc"
+            ],
+            "default": "services_bic"
+          },
+          "option_versement_liberatoire": {
+            "type": "boolean",
+            "default": false
+          },
+          "rni_foyer_n_moins_2": {
+            "type": "number",
+            "default": 0,
+            "description": "RFR du foyer de l'année N-2 (condition VFL)"
+          },
+          "nb_parts_foyer": {
+            "type": "number",
+            "default": 1.0
+          },
+          "premiere_annee": {
+            "type": "boolean",
+            "default": false
+          },
+          "beneficie_acre": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": []
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "calculer_cfe",
+      "description": "Calcule la Cotisation Foncière des Entreprises (CFE) : cotisation minimum selon CA, exonérations (1ère année, JEI, ZFU, ZRR, CA < 5 000€, artisans), base sur valeur locative, déductibilité fiscale.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "chiffre_affaires": {
+            "type": "number",
+            "default": 0
+          },
+          "commune_type": {
+            "type": "string",
+            "enum": [
+              "petite",
+              "moyenne",
+              "grande",
+              "paris"
+            ],
+            "default": "moyenne"
+          },
+          "type_entreprise": {
+            "type": "string",
+            "enum": [
+              "auto_entrepreneur",
+              "pme",
+              "liberal",
+              "sci"
+            ],
+            "default": "auto_entrepreneur"
+          },
+          "premiere_annee_activite": {
+            "type": "boolean",
+            "default": false
+          },
+          "superficie_locaux_m2": {
+            "type": "number",
+            "default": 0
+          },
+          "valeur_locative_brute": {
+            "type": "number",
+            "default": 0,
+            "description": "Valeur locative cadastrale brute des locaux (si connu)"
+          }
+        },
+        "required": []
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "simuler_investissement_pea",
+      "description": "Simule la fiscalité du PEA (Plan Épargne en Actions) : exonération IR après 5 ans, PS 17.2% sur les gains, plafond 150 000€ (PEA) + 75 000€ (PEA-PME), rente viagère exonérée, comparatif PEA vs CTO.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "versements_cumules": {
+            "type": "number",
+            "default": 0
+          },
+          "valeur_actuelle": {
+            "type": "number",
+            "default": 0
+          },
+          "anciennete_ans": {
+            "type": "integer",
+            "default": 0
+          },
+          "type_pea": {
+            "type": "string",
+            "enum": [
+              "pea_classique",
+              "pea_pme"
+            ],
+            "default": "pea_classique"
+          },
+          "montant_retrait": {
+            "type": "number",
+            "default": 0
+          },
+          "situation_famille": {
+            "type": "string",
+            "enum": [
+              "celibataire",
+              "marie",
+              "pacse",
+              "divorce",
+              "veuf"
+            ],
+            "default": "celibataire"
+          },
+          "nb_enfants": {
+            "type": "integer",
+            "default": 0
+          }
+        },
+        "required": []
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "guide_defiscalisation_solidaire",
+      "description": "Guide des dispositifs de défiscalisation solidaire et éthique : dons associations (75%/66%), réduction IFI, investissement PME/ESUS (25%), FIP/FCPI (18%/25%), SOFICA (30%/36%), plafond niches fiscales 10 000€.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "revenu_net_imposable": {
+            "type": "number",
+            "default": 0
+          },
+          "impot_actuel": {
+            "type": "number",
+            "default": 0
+          },
+          "situation_famille": {
+            "type": "string",
+            "enum": [
+              "celibataire",
+              "marie",
+              "pacse",
+              "divorce",
+              "veuf"
+            ],
+            "default": "celibataire"
+          },
+          "nb_enfants": {
+            "type": "integer",
+            "default": 0
+          },
+          "patrimoine_ifi": {
+            "type": "number",
+            "default": 0,
+            "description": "Patrimoine immobilier net (si assujetti IFI)"
+          },
+          "tmi_41_ou_plus": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": []
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "calculer_pv_immobiliere",
+      "description": "Calcule la plus-value immobilière avec tous les mécanismes officiels : frais d'acquisition 7.5% forfaitaires, travaux 15% forfaitaires après 5 ans, abattements IR (19%) et PS (17.2%) par durée de détention, exonération résidence principale, taxe sur hautes plus-values (2% à 6%).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "prix_vente": {
+            "type": "number",
+            "description": "Prix de vente du bien"
+          },
+          "prix_achat": {
+            "type": "number",
+            "default": 0,
+            "description": "Prix d'acquisition initial"
+          },
+          "frais_achat": {
+            "type": "number",
+            "default": 0,
+            "description": "Frais d'acquisition réels (notaire, agence)"
+          },
+          "travaux_justifies": {
+            "type": "number",
+            "default": 0,
+            "description": "Montant des travaux justifiés par factures"
+          },
+          "duree_detention_ans": {
+            "type": "integer",
+            "default": 0
+          },
+          "type_bien": {
+            "type": "string",
+            "enum": [
+              "residence_principale",
+              "secondaire",
+              "locatif",
+              "terrain"
+            ],
+            "default": "secondaire"
+          },
+          "primo_accedant_acheteur": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "prix_vente"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "guide_taxe_fonciere",
+      "description": "Guide de la taxe foncière : calcul (valeur locative cadastrale × 50% × taux communes), exonérations (construction neuve 2 ans, personnes âgées modestes, ZRR, JEI), plafonnement à 50% du RNI, taxe sur logements vacants, THRS résidences secondaires.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "valeur_locative_brute": {
+            "type": "number",
+            "default": 0,
+            "description": "Valeur locative cadastrale brute (sur l'avis de TF)"
+          },
+          "taux_commune_pct": {
+            "type": "number",
+            "default": 25,
+            "description": "Taux communal (%)"
+          },
+          "taux_departement_pct": {
+            "type": "number",
+            "default": 10,
+            "description": "Taux départemental (%)"
+          },
+          "revenu_net_imposable": {
+            "type": "number",
+            "default": 0,
+            "description": "RNI pour vérifier le plafonnement"
+          },
+          "nb_parts": {
+            "type": "number",
+            "default": 1.0
+          },
+          "type_bien": {
+            "type": "string",
+            "enum": [
+              "bati",
+              "non_bati"
+            ],
+            "default": "bati"
+          },
+          "logement_neuf": {
+            "type": "boolean",
+            "default": false
+          },
+          "personne_agee_modeste": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": []
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "simuler_reversion_pension",
+      "description": "Simule la pension de réversion : taux (54% régime général, 60% AGIRC-ARRCO), conditions d'accès (âge, ressources), écrêtement selon revenus, cumul avec pension personnelle, fiscalité (abattement 10%).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "pension_annuelle_defunt": {
+            "type": "number",
+            "description": "Pension annuelle du défunt"
+          },
+          "pension_personnelle_beneficiaire": {
+            "type": "number",
+            "default": 0
+          },
+          "age_beneficiaire": {
+            "type": "integer",
+            "default": 55
+          },
+          "revenus_annuels_beneficiaire": {
+            "type": "number",
+            "default": 0,
+            "description": "Revenus annuels (hors réversion) pour calcul écrêtement"
+          },
+          "situation_beneficiaire": {
+            "type": "string",
+            "enum": [
+              "veuf",
+              "remarie",
+              "concubinage"
+            ],
+            "default": "veuf"
+          },
+          "nb_enfants": {
+            "type": "integer",
+            "default": 0
+          },
+          "regime_defunt": {
+            "type": "string",
+            "enum": [
+              "general",
+              "agirc_arrco",
+              "fonctionnaire",
+              "independant",
+              "liberal"
+            ],
+            "default": "general"
+          }
+        },
+        "required": [
+          "pension_annuelle_defunt"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "guide_revision_declaration",
+      "description": "Guide pour corriger une déclaration fiscale : déclaration rectificative (avant 15 déc.), réclamation contentieuse (délai 2 ans après avis d'imposition), majorations et intérêts de retard (2.4%/an), prescription (3 ans), recours possibles.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "annee_declaration": {
+            "type": "integer",
+            "default": 2025,
+            "description": "Année de la déclaration à corriger (ex. 2025 pour revenus 2024)"
+          },
+          "type_erreur": {
+            "type": "string",
+            "enum": [
+              "omission_deduction",
+              "revenu_omis",
+              "erreur_situation_famille",
+              "autre"
+            ],
+            "default": "omission_deduction"
+          },
+          "montant_impact_estime": {
+            "type": "number",
+            "default": 0,
+            "description": "Montant estimé de l'erreur en euros"
+          },
+          "declaration_deja_soumise": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "required": []
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "simuler_revenus_exceptionnels",
+      "description": "Calcule l'economie d'impot grace au systeme du quotient (art. 163-0 A CGI) pour les revenus exceptionnels ou differés : indemnite de licenciement supra-legale, rappels de salaires, prime exceptionnelle, gains pluriannuels. Compare l'imposition normale vs le quotient sur N annees.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "rni_ordinaire": {
+            "type": "number",
+            "description": "Revenu net imposable ordinaire (hors revenu exceptionnel)",
+            "default": 0
+          },
+          "revenu_exceptionnel": {
+            "type": "number",
+            "description": "Montant du revenu exceptionnel ou differe a declarer"
+          },
+          "nombre_annees_echelement": {
+            "type": "integer",
+            "description": "Coefficient N (nombre d'annees sur lesquelles le droit a ete acquis, defaut 4)",
+            "default": 4
+          },
+          "situation_famille": {
+            "type": "string",
+            "enum": [
+              "celibataire",
+              "marie",
+              "pacse",
+              "divorce",
+              "veuf"
+            ],
+            "default": "celibataire"
+          },
+          "nb_enfants": {
+            "type": "integer",
+            "default": 0
+          },
+          "type_revenu": {
+            "type": "string",
+            "enum": [
+              "indemnite_licenciement",
+              "prime_exceptionnelle",
+              "revenus_differés",
+              "gain_stock_options",
+              "autre"
+            ],
+            "default": "autre"
+          }
+        },
+        "required": [
+          "revenu_exceptionnel"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "comparer_pfu_bareme_capital",
+      "description": "Compare la flat tax PFU 30% et le bareme progressif pour les revenus du capital : dividendes (abattement 40%, CSG ded.), interets, plus-values mobilieres. Identifie l'option optimale selon votre TMI et calcule l'economie realisee.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "type_revenu": {
+            "type": "string",
+            "enum": [
+              "dividendes",
+              "interets",
+              "plus_values_mobilieres"
+            ],
+            "description": "Nature du revenu de capital",
+            "default": "dividendes"
+          },
+          "montant": {
+            "type": "number",
+            "description": "Montant du revenu de capital en euros"
+          },
+          "rni_autres_revenus": {
+            "type": "number",
+            "description": "Revenus nets imposables autres (salaires, BIC...) du foyer",
+            "default": 0
+          },
+          "situation_famille": {
+            "type": "string",
+            "enum": [
+              "celibataire",
+              "marie",
+              "pacse",
+              "divorce",
+              "veuf"
+            ],
+            "default": "celibataire"
+          },
+          "nb_enfants": {
+            "type": "integer",
+            "default": 0
+          }
+        },
+        "required": [
+          "montant"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "simuler_lmnp",
+      "description": "Simulation LMNP (Location Meublee Non Professionnelle) : compare micro-BIC (abattement 50% ou 71%) vs regime reel avec amortissement. Calcule l'amortissement du batiment et du mobilier, le deficit reportable, et recommande le regime optimal.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "loyers_annuels_bruts": {
+            "type": "number",
+            "description": "Total des loyers encaisses par an (hors charges refacturees)"
+          },
+          "valeur_bien_hors_terrain": {
+            "type": "number",
+            "description": "Valeur d'acquisition du batiment HORS terrain (base amortissable)",
+            "default": 0
+          },
+          "valeur_terrain": {
+            "type": "number",
+            "description": "Valeur du terrain (non amortissable)",
+            "default": 0
+          },
+          "valeur_mobilier": {
+            "type": "number",
+            "description": "Valeur du mobilier et equipements (amortissables sur 7 ans)",
+            "default": 5000
+          },
+          "charges_annuelles": {
+            "type": "number",
+            "description": "Charges courantes : copropriete, assurance, frais de gestion",
+            "default": 0
+          },
+          "interets_emprunt_annuels": {
+            "type": "number",
+            "description": "Interets d'emprunt annuels",
+            "default": 0
+          },
+          "taxe_fonciere": {
+            "type": "number",
+            "description": "Taxe fonciere annuelle",
+            "default": 0
+          },
+          "type_location": {
+            "type": "string",
+            "enum": [
+              "classique",
+              "tourisme_classe"
+            ],
+            "description": "classique (abatt. 50%) ou tourisme_classe/VFT (abatt. 71%)",
+            "default": "classique"
+          },
+          "situation_famille": {
+            "type": "string",
+            "enum": [
+              "celibataire",
+              "marie",
+              "pacse",
+              "divorce",
+              "veuf"
+            ],
+            "default": "celibataire"
+          },
+          "nb_enfants": {
+            "type": "integer",
+            "default": 0
+          },
+          "rni_autres_revenus": {
+            "type": "number",
+            "description": "Autres revenus nets imposables du foyer",
+            "default": 0
+          }
+        },
+        "required": [
+          "loyers_annuels_bruts"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "simuler_rachat_trimestres",
+      "description": "Simule le rachat de trimestres manquants pour la retraite : cout brut selon l'age et le salaire, economie fiscale (deductible IR), gain de pension mensuel, et break-even en mois. Compare avec un versement PER equivalent.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "nb_trimestres_racheter": {
+            "type": "integer",
+            "description": "Nombre de trimestres a racheter (1 a 12)",
+            "default": 4
+          },
+          "salaire_annuel_brut": {
+            "type": "number",
+            "description": "Salaire annuel brut (reference pour le calcul, plafonne au PASS)"
+          },
+          "age_actuel": {
+            "type": "integer",
+            "description": "Age actuel du cotisant"
+          },
+          "annee_naissance": {
+            "type": "integer",
+            "description": "Annee de naissance (pour determiner le nombre de trimestres requis)",
+            "default": 1975
+          },
+          "trimestres_valides_actuels": {
+            "type": "integer",
+            "description": "Nombre de trimestres deja valides",
+            "default": 100
+          },
+          "option_rachat": {
+            "type": "string",
+            "enum": [
+              "duree_seulement",
+              "duree_et_taux"
+            ],
+            "description": "duree_seulement : moins cher. duree_et_taux : augmente aussi le salaire de reference.",
+            "default": "duree_seulement"
+          },
+          "tmi": {
+            "type": "number",
+            "description": "Taux marginal d'imposition actuel (pour calcul economie fiscale)",
+            "default": 30
+          },
+          "statut_professionnel": {
+            "type": "string",
+            "enum": [
+              "salarie",
+              "independant",
+              "fonctionnaire"
+            ],
+            "default": "salarie"
+          }
+        },
+        "required": [
+          "salaire_annuel_brut",
+          "age_actuel"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "calculer_exit_tax",
+      "description": "Calcule l'exit tax (art. 167 bis CGI) due lors du transfert du domicile fiscal hors de France : imposition des plus-values latentes sur titres et droits sociaux. Indique si un sursis automatique s'applique (depart vers UE/EEE) et les strategies pour minimiser l'imposition avant le depart.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "plus_values_latentes_total": {
+            "type": "number",
+            "description": "Total des plus-values latentes nettes sur titres et droits sociaux (valeur actuelle - prix de revient)"
+          },
+          "rni_autres_revenus": {
+            "type": "number",
+            "description": "Autres revenus nets imposables (pour option bareme)",
+            "default": 0
+          },
+          "situation_famille": {
+            "type": "string",
+            "enum": [
+              "celibataire",
+              "marie",
+              "pacse",
+              "divorce",
+              "veuf"
+            ],
+            "default": "celibataire"
+          },
+          "nb_enfants": {
+            "type": "integer",
+            "default": 0
+          },
+          "pays_destination": {
+            "type": "string",
+            "enum": [
+              "ue_eea",
+              "hors_ue"
+            ],
+            "description": "ue_eea : sursis automatique. hors_ue : paiement immediat ou garantie.",
+            "default": "hors_ue"
+          },
+          "annees_residence_france_10_dernieres": {
+            "type": "integer",
+            "description": "Nombre d'annees de residence fiscale en France sur les 10 dernieres annees",
+            "default": 10
+          },
+          "option_bareme_progressif": {
+            "type": "boolean",
+            "description": "Opter pour le bareme progressif plutot que le PFU (utile si TMI < 30%)",
+            "default": false
+          }
+        },
+        "required": [
+          "plus_values_latentes_total"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "guide_loc_avantages",
+      "description": "Guide et simulation Loc'Avantages (art. 199 tricies CGI, ex-Cosse Ancien) : reduction d'impot 15% a 65% en echange d'un loyer modere sur logement loue nu, via convention ANAH. Alternative au Pinel pour l'immobilier ancien.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "loyers_bruts_annuels": {
+            "type": "number",
+            "description": "Loyers bruts annuels du logement concerne",
+            "default": 0
+          },
+          "niveau_convention": {
+            "type": "string",
+            "enum": [
+              "intermediaire",
+              "social",
+              "tres_social",
+              "solidaire"
+            ],
+            "description": "Niveau de la convention ANAH : intermediaire (15%), social (35%), tres_social (65%), solidaire (65%)",
+            "default": "intermediaire"
+          },
+          "surface_m2": {
+            "type": "number",
+            "description": "Surface habitable du logement en m2 (pour calcul du loyer plafond)",
+            "default": 0
+          },
+          "zone": {
+            "type": "string",
+            "enum": [
+              "A_bis",
+              "A",
+              "B1",
+              "B2_C"
+            ],
+            "description": "Zone geographique : A_bis (Paris), A (IDF...), B1, B2_C",
+            "default": "B1"
+          },
+          "rni_autres_revenus": {
+            "type": "number",
+            "description": "Autres revenus nets imposables du foyer",
+            "default": 0
+          },
+          "situation_famille": {
+            "type": "string",
+            "enum": [
+              "celibataire",
+              "marie",
+              "pacse",
+              "divorce",
+              "veuf"
+            ],
+            "default": "celibataire"
+          },
+          "nb_enfants": {
+            "type": "integer",
+            "default": 0
+          }
+        },
+        "required": []
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "simuler_micro_foncier",
+      "description": "Compare le regime micro-foncier (abattement forfaitaire 30%) et le regime reel pour les revenus locatifs nus (< 15 000 EUR/an). Calcule le deficit foncier imputable sur le revenu global (jusqu'a 10 700 EUR/an), les reports de deficit et l'impact sur l'IR.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "loyers_bruts_annuels": {
+            "type": "number",
+            "description": "Total des loyers bruts percus dans l'annee"
+          },
+          "interets_emprunt": {
+            "type": "number",
+            "description": "Interets d'emprunt immobilier deductibles",
+            "default": 0
+          },
+          "charges_copropriete": {
+            "type": "number",
+            "description": "Charges de copropriete (part non recuperable sur locataire)",
+            "default": 0
+          },
+          "taxe_fonciere": {
+            "type": "number",
+            "description": "Taxe fonciere (hors ordures menageres si remboursee)",
+            "default": 0
+          },
+          "travaux_entretien_annuels": {
+            "type": "number",
+            "description": "Travaux de reparation, entretien et amelioration",
+            "default": 0
+          },
+          "frais_gestion_annuels": {
+            "type": "number",
+            "description": "Frais d'agence, de gestion locative",
+            "default": 0
+          },
+          "assurance_pno": {
+            "type": "number",
+            "description": "Primes d'assurance proprietaire non-occupant",
+            "default": 0
+          },
+          "deficits_fonciers_anterieurs": {
+            "type": "number",
+            "description": "Deficits fonciers des annees anterieures non encore imputes",
+            "default": 0
+          },
+          "situation_famille": {
+            "type": "string",
+            "enum": [
+              "celibataire",
+              "marie",
+              "pacse",
+              "divorce",
+              "veuf"
+            ],
+            "default": "celibataire"
+          },
+          "nb_enfants": {
+            "type": "integer",
+            "default": 0
+          },
+          "rni_autres_revenus": {
+            "type": "number",
+            "description": "Autres revenus nets imposables du foyer (salaires, BIC...)",
+            "default": 0
+          }
+        },
+        "required": [
+          "loyers_bruts_annuels"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "verifier_actualite_fiscale",
+      "description": "Verifie si les baremes et donnees fiscales du MCP sont a jour pour une annee donnee. Liste les parametres cles (tranches IR, PASS, plafonds PER, IS, seuils AE...) et signale ce qui doit etre mis a jour lors d'un changement d'annee fiscale.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "annee_cible": {
+            "type": "integer",
+            "description": "Annee fiscale a verifier (ex. 2027 pour revenus 2026). Defaut : annee courante du MCP."
+          }
+        },
+        "required": []
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "comparer_statuts_professionnel",
+      "description": "Compare la situation financiere nette entre CDI/CDD et les statuts independants (auto-entrepreneur, SASU, EURL IS, portage salarial). Calcule le net en poche apres toutes charges sociales et impots, identifie le TJM minimum pour egaler un salaire CDI donne, et formule une recommandation selon le CA et le profil.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "salaire_brut_annuel_cdi": {
+            "type": "number",
+            "description": "Salaire brut annuel actuel ou cible en CDI/CDD (pour comparaison, optionnel)"
+          },
+          "tjm_freelance": {
+            "type": "number",
+            "description": "Taux journalier moyen envisage en freelance (euros/jour HT)"
+          },
+          "jours_travailles_an": {
+            "type": "integer",
+            "description": "Nombre de jours factures par an (defaut 200)",
+            "default": 200
+          },
+          "ca_annuel": {
+            "type": "number",
+            "description": "CA annuel HT si connu directement (alternatif a TJM x jours)"
+          },
+          "type_activite": {
+            "type": "string",
+            "enum": [
+              "services_bnc",
+              "services_bic",
+              "vente_marchandises"
+            ],
+            "description": "Type d'activite : services_bnc (liberal/conseil/IT), services_bic (artisan/commerce), vente_marchandises",
+            "default": "services_bnc"
+          },
+          "situation_famille": {
+            "type": "string",
+            "enum": [
+              "celibataire",
+              "marie",
+              "pacse",
+              "divorce",
+              "veuf"
+            ],
+            "default": "celibataire"
+          },
+          "nb_enfants": {
+            "type": "integer",
+            "default": 0
+          },
+          "charges_pro_annuelles": {
+            "type": "number",
+            "description": "Charges professionnelles deductibles SASU/EURL (loyer bureau, materiel, deplacements...) en euros",
+            "default": 0
+          }
+        },
+        "required": []
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "diagnostiquer_passage_freelance",
+      "description": "Diagnostic personnalise : est-il interessant de passer freelance (independant) plutot que de rester en CDI/CDD ? Analyse la situation financiere, le secteur, l'experience, l'epargne de securite, le reseau clients et la tolerance au risque. Produit un score de maturite et une recommandation claire : passer maintenant, preparer le passage, ou rester salarie. Calcule le gain net potentiel et le TJM cible selon le profil.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "salaire_brut_annuel_cdi": {
+            "type": "number",
+            "description": "Salaire brut annuel actuel en CDI/CDD (euros)"
+          },
+          "secteur": {
+            "type": "string",
+            "enum": [
+              "it_dev",
+              "it_conseil_data",
+              "conseil_management",
+              "marketing_communication",
+              "juridique_rh",
+              "btp_artisanat",
+              "sante_paramedical",
+              "formation_coaching",
+              "commerce_vente",
+              "autre"
+            ],
+            "description": "Secteur d'activite : it_dev (dev/devops/securite), it_conseil_data (conseil IT/data/cloud), conseil_management (strategie/organisation), marketing_communication, juridique_rh, btp_artisanat, sante_paramedical, formation_coaching, commerce_vente, autre",
+            "default": "it_dev"
+          },
+          "anciennete_ans": {
+            "type": "integer",
+            "description": "Annees d'experience professionnelle dans le secteur",
+            "default": 5
+          },
+          "epargne_disponible": {
+            "type": "number",
+            "description": "Epargne de precaution disponible (euros)",
+            "default": 0
+          },
+          "clients_potentiels": {
+            "type": "boolean",
+            "description": "Avez-vous deja des prospects, un reseau ou une mission en vue ?",
+            "default": false
+          },
+          "situation_famille": {
+            "type": "string",
+            "enum": [
+              "celibataire",
+              "marie",
+              "pacse",
+              "divorce",
+              "veuf"
+            ],
+            "default": "celibataire"
+          },
+          "nb_enfants": {
+            "type": "integer",
+            "default": 0
+          },
+          "acceptation_risque": {
+            "type": "string",
+            "enum": [
+              "faible",
+              "moyen",
+              "eleve"
+            ],
+            "description": "Tolerance au risque financier et professionnel",
+            "default": "moyen"
+          },
+          "tjm_vise": {
+            "type": "number",
+            "description": "TJM envisage (euros/jour HT). Si omis, calcule le TJM minimum pour egaliser le CDI.",
+            "default": 0
+          },
+          "jours_facturation_an": {
+            "type": "integer",
+            "description": "Jours facturable par an (defaut 180 pour etre conservateur)",
+            "default": 180
+          },
+          "charges_mensuelles": {
+            "type": "number",
+            "description": "Charges mensuelles personnelles (loyer, credits, alimentation...) en euros. Aide a calculer le buffer de securite.",
+            "default": 0
+          },
+          "type_activite": {
+            "type": "string",
+            "enum": [
+              "services_bnc",
+              "services_bic",
+              "vente_marchandises"
+            ],
+            "description": "Type fiscal : services_bnc (liberal/conseil/IT), services_bic (artisan/commerce), vente_marchandises",
+            "default": "services_bnc"
+          }
+        },
+        "required": [
+          "salaire_brut_annuel_cdi"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    }
+  ]
+}

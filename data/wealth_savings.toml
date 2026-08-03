@@ -1,0 +1,123 @@
+registry_version = "2026.08.01"
+audited_at = "2026-08-01"
+domain = "wealth_savings"
+
+[[rules]]
+id = "pass.2026.annual"
+value = 48060
+unit = "EUR"
+income_year = 2026
+declaration_year = 2026
+effective_from = "2026-01-01"
+effective_to = "2026-12-31"
+checked_at = "2026-08-01"
+source_url = "https://www.urssaf.fr/accueil/outils-documentation/taux-baremes/plafonds-securite-sociale.html"
+legal_basis = "Arrêté du 22 décembre 2025"
+
+[[rules]]
+id = "per.2026.minimum"
+value = 4710
+unit = "EUR"
+income_year = 2025
+declaration_year = 2026
+effective_from = "2026-01-01"
+effective_to = "2026-12-31"
+checked_at = "2026-08-01"
+source_url = "https://www.impots.gouv.fr/particulier/epargne-retraite"
+legal_basis = "CGI art. 163 quatervicies"
+
+[[rules]]
+id = "per.2026.maximum"
+value = 37680
+unit = "EUR"
+income_year = 2025
+declaration_year = 2026
+effective_from = "2026-01-01"
+effective_to = "2026-12-31"
+checked_at = "2026-08-01"
+source_url = "https://www.impots.gouv.fr/particulier/epargne-retraite"
+legal_basis = "CGI art. 163 quatervicies"
+
+[[rules]]
+id = "capital.2026.pfu_rate"
+value = 0.314
+unit = "ratio"
+income_year = 2026
+declaration_year = 2027
+effective_from = "2026-01-01"
+effective_to = "2026-12-31"
+checked_at = "2026-08-01"
+source_url = "https://www.impots.gouv.fr/particulier/questions/jai-des-valeurs-mobilieres-comment-sont-elles-imposees"
+legal_basis = "CGI art. 200 A et CSS art. L136-8"
+
+[[rules]]
+id = "capital.2026.income_tax_rate"
+value = 0.128
+unit = "ratio"
+income_year = 2026
+declaration_year = 2027
+effective_from = "2026-01-01"
+effective_to = "2026-12-31"
+checked_at = "2026-08-01"
+source_url = "https://www.impots.gouv.fr/particulier/questions/jai-des-valeurs-mobilieres-comment-sont-elles-imposees"
+legal_basis = "CGI art. 200 A"
+
+[[rules]]
+id = "capital.2026.social_rate"
+value = 0.186
+unit = "ratio"
+income_year = 2026
+declaration_year = 2027
+effective_from = "2026-01-01"
+effective_to = "2026-12-31"
+checked_at = "2026-08-01"
+source_url = "https://www.impots.gouv.fr/particulier/questions/jai-des-valeurs-mobilieres-comment-sont-elles-imposees"
+legal_basis = "CSS art. L136-8"
+
+[[rules]]
+id = "savings.2026.livret_a_rate"
+value = 0.017
+unit = "ratio"
+income_year = 2026
+declaration_year = 2026
+effective_from = "2026-08-01"
+effective_to = "2027-01-31"
+checked_at = "2026-08-01"
+source_url = "https://presse.economie.gouv.fr/epargne-reglementee-le-livret-a-passe-a-17-et-le-lep-se-maintient-a-25-a-compter-du-1er-aout-2026/"
+legal_basis = "Arrêté du 27 janvier 2021 relatif aux taux d'intérêt des produits d'épargne réglementée"
+
+[[rules]]
+id = "savings.2026.lep_rate"
+value = 0.025
+unit = "ratio"
+income_year = 2026
+declaration_year = 2026
+effective_from = "2026-08-01"
+effective_to = "2027-01-31"
+checked_at = "2026-08-01"
+source_url = "https://presse.economie.gouv.fr/epargne-reglementee-le-livret-a-passe-a-17-et-le-lep-se-maintient-a-25-a-compter-du-1er-aout-2026/"
+legal_basis = "Code monétaire et financier art. R221-7"
+
+[[rules]]
+id = "ifi.2026.entry_threshold"
+value = 1300000
+unit = "EUR"
+income_year = 2026
+declaration_year = 2026
+effective_from = "2026-01-01"
+effective_to = "2026-12-31"
+checked_at = "2026-08-01"
+source_url = "https://www.impots.gouv.fr/particulier/calcul-de-lifi"
+legal_basis = "CGI art. 964 et 977"
+
+[[rules]]
+id = "smic.2026.hourly_gross"
+value = 12.31
+unit = "EUR_per_hour"
+income_year = 2026
+declaration_year = 2026
+effective_from = "2026-06-01"
+effective_to = "2026-12-31"
+checked_at = "2026-08-01"
+source_url = "https://www.urssaf.fr/accueil/outils-documentation/taux-baremes/montant-smic.html"
+legal_basis = "Décret de revalorisation du SMIC au 1er juin 2026"

@@ -1,0 +1,135 @@
+registry_version = "2026.08.01"
+audited_at = "2026-08-01"
+domain = "business"
+
+[[rules]]
+id = "micro.2026.sales.threshold"
+value = 203100
+unit = "EUR_CA"
+income_year = 2026
+declaration_year = 2027
+effective_from = "2026-01-01"
+effective_to = "2028-12-31"
+checked_at = "2026-08-01"
+source_url = "https://entreprendre.service-public.gouv.fr/vosdroits/F23267"
+legal_basis = "CGI art. 50-0 et 102 ter"
+
+[[rules]]
+id = "micro.2026.services.threshold"
+value = 83600
+unit = "EUR_CA"
+income_year = 2026
+declaration_year = 2027
+effective_from = "2026-01-01"
+effective_to = "2028-12-31"
+checked_at = "2026-08-01"
+source_url = "https://entreprendre.service-public.gouv.fr/vosdroits/F23267"
+legal_basis = "CGI art. 50-0 et 102 ter"
+
+[[rules]]
+id = "micro.2026.social.sales_rate"
+value = 0.123
+unit = "ratio"
+income_year = 2026
+declaration_year = 2026
+effective_from = "2026-01-01"
+effective_to = "2026-12-31"
+checked_at = "2026-08-01"
+source_url = "https://entreprendre.service-public.gouv.fr/vosdroits/F37353"
+legal_basis = "Code de la sécurité sociale art. L613-7"
+
+[[rules]]
+id = "micro.2026.social.services_bic_rate"
+value = 0.212
+unit = "ratio"
+income_year = 2026
+declaration_year = 2026
+effective_from = "2026-01-01"
+effective_to = "2026-12-31"
+checked_at = "2026-08-01"
+source_url = "https://entreprendre.service-public.gouv.fr/vosdroits/F37353"
+legal_basis = "Code de la sécurité sociale art. L613-7"
+
+[[rules]]
+id = "micro.2026.social.bnc_rate"
+value = 0.256
+unit = "ratio"
+income_year = 2026
+declaration_year = 2026
+effective_from = "2026-01-01"
+effective_to = "2026-12-31"
+checked_at = "2026-08-01"
+source_url = "https://entreprendre.service-public.gouv.fr/vosdroits/F37353"
+legal_basis = "Code de la sécurité sociale art. L613-7"
+
+[[rules]]
+id = "micro.2026.social.cipav_rate"
+value = 0.232
+unit = "ratio"
+income_year = 2026
+declaration_year = 2026
+effective_from = "2026-01-01"
+effective_to = "2026-12-31"
+checked_at = "2026-08-01"
+source_url = "https://entreprendre.service-public.gouv.fr/vosdroits/F37353"
+legal_basis = "Code de la sécurité sociale art. L613-7"
+
+[[rules]]
+id = "vat.2026.sales.base_threshold"
+value = 85000
+unit = "EUR_CA"
+income_year = 2026
+declaration_year = 2026
+effective_from = "2026-01-01"
+effective_to = "2026-12-31"
+checked_at = "2026-08-01"
+source_url = "https://www.impots.gouv.fr/professionnel/les-regimes-dimposition-la-tva"
+legal_basis = "CGI art. 293 B"
+
+[[rules]]
+id = "vat.2026.services.base_threshold"
+value = 37500
+unit = "EUR_CA"
+income_year = 2026
+declaration_year = 2026
+effective_from = "2026-01-01"
+effective_to = "2026-12-31"
+checked_at = "2026-08-01"
+source_url = "https://www.impots.gouv.fr/professionnel/les-regimes-dimposition-la-tva"
+legal_basis = "CGI art. 293 B"
+
+[[rules]]
+id = "corporate_tax.2026.reduced_rate"
+value = 0.15
+unit = "ratio"
+income_year = 2026
+declaration_year = 2026
+effective_from = "2026-01-01"
+effective_to = "2026-12-31"
+checked_at = "2026-08-01"
+source_url = "https://entreprendre.service-public.gouv.fr/vosdroits/F23575"
+legal_basis = "CGI art. 219"
+
+[[rules]]
+id = "corporate_tax.2026.reduced_band"
+value = 42500
+unit = "EUR_profit"
+income_year = 2026
+declaration_year = 2026
+effective_from = "2026-01-01"
+effective_to = "2026-12-31"
+checked_at = "2026-08-01"
+source_url = "https://entreprendre.service-public.gouv.fr/vosdroits/F23575"
+legal_basis = "CGI art. 219"
+
+[[rules]]
+id = "corporate_tax.2026.normal_rate"
+value = 0.25
+unit = "ratio"
+income_year = 2026
+declaration_year = 2026
+effective_from = "2026-01-01"
+effective_to = "2026-12-31"
+checked_at = "2026-08-01"
+source_url = "https://entreprendre.service-public.gouv.fr/vosdroits/F23575"
+legal_basis = "CGI art. 219"

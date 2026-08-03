@@ -1,0 +1,24 @@
+{
+  "name": "impots-france-mcp",
+  "version": "0.1.0",
+  "author": "Impôts France MCP contributors",
+  "license": "MIT",
+  "repository": "github:murillo-consulting/impots-france-mcp",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "workspaces": [
+    "edge"
+  ],
+  "scripts": {
+    "build": "npm run build:wasm && npm run build -w edge",
+    "build:wasm": "wasm-pack build crates/fiscal-wasm --target bundler --out-dir ../../edge/src/generated/wasm --release && node scripts/patch-wasm-bindgen.mjs",
+    "check": "cargo fmt --all --check && cargo clippy --workspace --all-targets -- -D warnings && cargo test --workspace && npm run check -w edge",
+    "test": "cargo test --workspace && npm test -w edge"
+  },
+  "devDependencies": {
+    "wasm-pack": "0.15.0"
+  }
+}

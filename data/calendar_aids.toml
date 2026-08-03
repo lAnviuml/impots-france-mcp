@@ -1,0 +1,63 @@
+registry_version = "2026.08.01"
+audited_at = "2026-08-01"
+domain = "calendar_aids"
+
+[[rules]]
+id = "calendar.2026.income_tax"
+value = ["2026-04-09 ouverture déclaration", "2026-05-19 limite papier", "2026-05-21 limite en ligne zones 1 et non-résidents", "2026-05-28 limite en ligne zone 2", "2026-06-04 limite en ligne zone 3", "2026-09-25 solde IR ou première échéance", "2026-10-26 deuxième échéance si solde supérieur à 300 EUR", "2026-11-25 troisième échéance", "2026-12-28 quatrième échéance"]
+unit = "ISO_date_and_event"
+income_year = 2025
+declaration_year = 2026
+effective_from = "2026-01-01"
+effective_to = "2026-12-31"
+checked_at = "2026-08-01"
+source_url = "https://www.economie.gouv.fr/particuliers/impots-et-fiscalite/gerer-mon-impot-sur-le-revenu/impot-sur-le-revenu-le-calendrier-de-la-declaration-en-2026"
+legal_basis = "Calendrier fiscal DGFiP 2026"
+
+[[rules]]
+id = "tax_credit.2026.home_employment"
+value = [0.50, 12000, 15000]
+unit = "rate_standard_expense_EUR_first_year_expense_EUR"
+income_year = 2025
+declaration_year = 2026
+effective_from = "2026-01-01"
+effective_to = "2026-12-31"
+checked_at = "2026-08-01"
+source_url = "https://www.service-public.gouv.fr/particuliers/vosdroits/F12"
+legal_basis = "CGI art. 199 sexdecies"
+
+[[rules]]
+id = "tax_credit.2026.childcare"
+value = [0.50, 3500, 1750]
+unit = "rate_expense_EUR_max_credit_EUR_per_child"
+income_year = 2025
+declaration_year = 2026
+effective_from = "2026-01-01"
+effective_to = "2026-12-31"
+checked_at = "2026-08-01"
+source_url = "https://www.service-public.gouv.fr/particuliers/vosdroits/F8"
+legal_basis = "CGI art. 200 quater B"
+
+[[rules]]
+id = "tax_reduction.2026.donations"
+value = [0.66, 0.20, 0.75, 2000]
+unit = "ordinary_rate_income_limit_ratio_aid_rate_aid_limit_EUR"
+income_year = 2026
+declaration_year = 2027
+effective_from = "2025-10-14"
+effective_to = "2026-12-31"
+checked_at = "2026-08-01"
+source_url = "https://bofip.impots.gouv.fr/bofip/5873-PGP.html/identifiant%3DBOI-IR-RICI-250-30-20260706"
+legal_basis = "CGI art. 200"
+
+[[rules]]
+id = "tax_advantages.2026.global_cap"
+value = [10000, 18000]
+unit = "standard_EUR_special_EUR"
+income_year = 2025
+declaration_year = 2026
+effective_from = "2026-01-01"
+effective_to = "2026-12-31"
+checked_at = "2026-08-01"
+source_url = "https://www.economie.gouv.fr/particuliers/impots-et-fiscalite/gerer-mon-impot-sur-le-revenu/le-plafonnement-global-des-avantages-fiscaux-comment-ca-marche"
+legal_basis = "CGI art. 200-0 A"

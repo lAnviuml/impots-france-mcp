@@ -1,0 +1,68 @@
+name: Rappel de revue fiscale
+
+on:
+  schedule:
+    - cron: "0 8 1 2 *" # 09:00 Europe/Paris en février
+    - cron: "0 7 1 8 *" # 09:00 Europe/Paris en août
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  open-review-issue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Ouvrir l’issue idempotente
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const now = new Date();
+            const cycle = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
+            const marker = `<!-- fiscal-review:${cycle} -->`;
+            try {
+              await github.rest.issues.getLabel({ owner: context.repo.owner, repo: context.repo.repo, name: "fiscal-review" });
+            } catch (error) {
+              if (error.status !== 404) throw error;
+              await github.rest.issues.createLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: "fiscal-review",
+                color: "1d76db",
+                description: "Revue semestrielle des règles fiscales",
+              });
+            }
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: "open",
+              labels: "fiscal-review",
+              per_page: 100,
+            });
+            if (issues.some((issue) => issue.body?.includes(marker))) return;
+
+            const auditedAt = new Date("2026-08-01T00:00:00Z");
+            const ageDays = Math.floor((now.getTime() - auditedAt.getTime()) / 86400000);
+            const body = `${marker}
+            ## Revue fiscale semestrielle
+
+            Âge du registre \`2026.08.01\` : **${ageDays} jours**.
+
+            - [ ] Contrôler la loi de finances et les mises à jour DGFiP/BOFiP
+            - [ ] Contrôler Légifrance, Urssaf, Service Public et les ministères
+            - [ ] Mettre à jour \`data/*.toml\` avec période d’effet et fondement légal
+            - [ ] Régénérer les types et vérifier les 62 schémas MCP
+            - [ ] Exécuter les tests Rust, Wasm, MCP, OAuth et Workers
+            - [ ] Faire relire les divergences et publier une nouvelle version
+
+            Ce rappel ne modifie jamais automatiquement une règle fiscale.`;
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Revue fiscale semestrielle — ${cycle}`,
+              body,
+              labels: ["fiscal-review"],
+            });

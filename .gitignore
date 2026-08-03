@@ -1,0 +1,15 @@
+/target/
+**/node_modules/
+/dist/
+/build/
+/.wrangler/
+/.dev.vars
+/.env
+*.tfstate
+*.tfstate.*
+*.tfvars
+!.tfvars.example
+**/.terraform/
+infra/backend.hcl
+/coverage/
+/legacy/__pycache__/
