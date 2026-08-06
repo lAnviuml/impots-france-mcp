@@ -19,6 +19,12 @@
     "test": "cargo test --workspace && npm test -w edge"
   },
   "devDependencies": {
+    "undici": "7.29.0",
     "wasm-pack": "0.15.0"
+  },
+  "overrides": {
+    "miniflare": {
+      "undici": "$undici"
+    }
   }
 }
