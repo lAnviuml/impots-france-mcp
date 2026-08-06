@@ -8,8 +8,6 @@
 
 Le serveur couvre notamment l’impôt sur le revenu, le PER, l’IFI, l’immobilier, la transmission, l’épargne, les indépendants, les sociétés, les cryptomonnaies et la fiscalité internationale.
 
-Ce dépôt fournit le serveur et son infrastructure de référence. Il ne garantit aucun endpoint public partagé.
-
 ## Connexion
 
 Dans un client compatible **MCP Streamable HTTP**, ajouter un serveur personnalisé :
@@ -24,6 +22,42 @@ Dans un client compatible **MCP Streamable HTTP**, ajouter un serveur personnali
 La connexion ouvre le navigateur pour l’authentification OAuth. Sans jeton valide, l’endpoint doit répondre `401 Unauthorized`.
 
 Le manifeste [`contracts/tools.json`](contracts/tools.json) documente les 62 outils, leurs paramètres et leurs valeurs par défaut.
+
+## Exemples d’utilisation
+
+Les demandes peuvent combiner plusieurs outils. Indiquer l’année concernée et les données connues améliore la précision de la simulation.
+
+### Impôt sur le revenu et PER
+
+```text
+Estime l’impôt d’un couple marié avec deux enfants, 62 000 € et 38 000 € de salaires nets imposables. Compare la situation avant et après un versement de 5 000 € sur un PER. Détaille le quotient familial, le taux marginal, les hypothèses et les sources.
+```
+
+### Dividendes et placements
+
+```text
+Compare le prélèvement forfaitaire unique et le barème progressif pour 12 000 € de dividendes, avec 38 000 € d’autres revenus imposables, pour un célibataire sans enfant. Présente les deux scénarios et l’écart estimé.
+```
+
+### Plus-value immobilière
+
+```text
+Simule la vente d’un logement locatif pour 330 000 €, acheté 210 000 € et détenu 14 ans. Intègre 15 000 € de frais d’acquisition et 28 000 € de travaux justifiés. Sépare impôt sur le revenu, prélèvements sociaux, abattements et surtaxe éventuelle.
+```
+
+### Cryptomonnaies
+
+```text
+Calcule la plus-value imposable pour une cession de 18 000 €. Avant la cession, le portefeuille vaut 72 000 € et son prix total d’acquisition est de 41 000 €. Ajoute 900 € de revenus de staking et précise le traitement fiscal retenu.
+```
+
+### Transmission
+
+```text
+Estime les droits pour une donation de 120 000 € d’un parent à son enfant. Compare une donation classique et un don familial de somme d’argent selon l’âge du donateur, les abattements disponibles et les donations antérieures.
+```
+
+Ces exemples sont des scénarios d’utilisation, pas des résultats fiscaux de référence.
 
 ## Fonctionnement
 
